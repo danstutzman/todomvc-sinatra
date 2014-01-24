@@ -13,7 +13,6 @@
     "karma-mocha": "~0.1.1",
     "karma-browserify": "0.0.6",
     "coffeeify": "~0.5.2",
-    "assert": "~1.1.0"
   },
   "engines": {
     "node": ">=0.8.0"
