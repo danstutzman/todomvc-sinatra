@@ -13,6 +13,9 @@
     "karma-mocha": "~0.1.1",
     "karma-browserify": "0.0.6",
     "coffeeify": "~0.5.2",
+    "karma-ievms": "0.0.4",
+    "karma-opera-launcher": "~0.1.0",
+    "karma-safari-launcher": "~0.1.1"
   },
   "engines": {
     "node": ">=0.8.0"
