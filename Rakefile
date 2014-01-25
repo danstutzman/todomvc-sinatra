@@ -49,3 +49,7 @@ task :start_selenium_hub_server do
 end
 
 task :spec_ie => [:start_selenium_hub_server, :spec, :stop_selenium_server]
+
+task :karma do
+  puts system('node_modules/.bin/karma start')
+end
