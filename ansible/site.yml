@@ -1,0 +1,20 @@
+---
+# This playbook deploys the whole application stack in this site.  
+
+- name: apply common configuration to all nodes
+  hosts: all
+  user: root
+  roles:
+    - common
+
+#- name: setup and deploy the webservers and application code
+#  hosts: webservers
+#  user: root
+#  roles:
+#    - web
+#
+#- name: setup and configure postgres database
+#  hosts: dbservers
+#  user: root
+#  roles:
+#    - db
