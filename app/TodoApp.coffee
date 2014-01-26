@@ -24,7 +24,7 @@ TodoApp = React.createClass
     @refs.newField.getDOMNode().focus()
 
   handleNewTodoKeyDown: (event) ->
-    return if event.which != ENTER_KEY
+    return if event.keyCode != ENTER_KEY
     val = @refs.newField.getDOMNode().value.trim()
     if val
       newTodo = { id: Utils.uuid(), title: val, completed: false }
