@@ -53,3 +53,15 @@ task :spec_ie => [:start_selenium_hub_server, :spec, :stop_selenium_server]
 task :karma do
   puts system('node_modules/.bin/karma start')
 end
+
+file 'app/temp/browserified.js' => Dir.glob('app/*.coffee') do |task|
+  command = %W[
+    node_modules/.bin/browserify
+    #{task.prerequisites.join(' ')}
+    -t coffeeify -o
+    #{task.name}
+    --insert-global-vars ''
+    -d
+  ]
+  sh command
+end

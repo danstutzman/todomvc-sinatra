@@ -1,3 +1,4 @@
 node_modules
 .*.swp
 app/bower_components
+app/temp
