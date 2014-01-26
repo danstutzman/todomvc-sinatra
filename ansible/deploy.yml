@@ -1,0 +1,6 @@
+---
+- hosts: webservers
+  user: root
+  tasks:
+    - name: Create index.html
+      template: src=templates/index.html.j2 dest=/var/www/index.html
