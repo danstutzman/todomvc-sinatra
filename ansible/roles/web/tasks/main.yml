@@ -1,0 +1,3 @@
+---
+- include: install_apache2.yml
+- include: deploy.yml

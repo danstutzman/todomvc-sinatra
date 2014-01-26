@@ -7,12 +7,12 @@
   roles:
     - common
 
-#- name: setup and deploy the webservers and application code
-#  hosts: webservers
-#  user: root
-#  roles:
-#    - web
-#
+- name: setup and deploy the webservers and application code
+  hosts: webservers
+  user: root
+  roles:
+    - web
+
 #- name: setup and configure postgres database
 #  hosts: dbservers
 #  user: root
