@@ -14,6 +14,9 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+        'app/bower_components/es5-shim/es5-shim.js',
+        'app/bower_components/es5-shim/es5-sham.js',
+        'app/bower_components/console-polyfill/index.js',
         'test/react-with-test-utils.js',
         'app/*.coffee',
         'test/**/*.coffee'
@@ -62,15 +65,9 @@ module.exports = function(config) {
     autoWatch: true,
 
 
-    // Start these browsers, currently available:
-    // - Chrome
-    // - ChromeCanary
-    // - Firefox
-    // - Opera (has to be installed with `npm install karma-opera-launcher`)
-    // - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
-    // - PhantomJS
-    // - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
-    browsers: ['IE6 - WinXP', 'Chrome', 'Firefox', 'Opera', 'Safari'],
+    //browsers: ['IE6 - WinXP', 'Chrome', 'Firefox', 'Opera', 'Safari'],
+    //browsers: ['IE6 - WinXP'],
+    browsers: ['Firefox'],
 
 
     // If browser does not capture in given timeout [ms], kill it
