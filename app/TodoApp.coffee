@@ -130,10 +130,10 @@ TodoApp = React.createClass
       placeholder: 'What needs to be done?'
       onKeyDown: @handleNewTodoKeyDown
     React.DOM.div(null,
-      React.DOM.header(id: 'header',
+      React.DOM.div(id: 'header',
         React.DOM.h1(null, 'todos'),
         React.DOM.input(new_input_attrs)
-      )
+      ),
       main,
       footer
     )
