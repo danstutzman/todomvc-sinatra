@@ -74,7 +74,6 @@ file 'test/temp/browserified.js' => (
     -t coffeeify -o
     #{task.name}
     --insert-global-vars ''
-    -x chai
     -d
   ].join(' ')
   sh command
