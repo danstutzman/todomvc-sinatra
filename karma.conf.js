@@ -9,27 +9,26 @@ module.exports = function(config) {
 
 
     // frameworks to use
-    frameworks: ['mocha', 'browserify'],
+    frameworks: ['jasmine', 'browserify'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      'js/*.js',
-      'js/*.coffee',
-      'test/**/*.js',
-      'test/**/*.coffee'
+        'test/react-with-test-utils.js',
+        'app/*.coffee',
+        'test/**/*.coffee'
     ],
 
 
     // list of files to exclude
     exclude: [
-      
+        'app/main.coffee'
     ],
 
 
     preprocessors: {
+        'app/*.coffee': ['browserify'],
         'test/**/*.coffee': ['browserify'],
-        'test/**/*.js': ['browserify']
     },
 
 
@@ -38,7 +37,7 @@ module.exports = function(config) {
         transform: ['coffeeify'],
         watch: true,   // Watches dependencies only (Karma watches the tests)
         debug: true,   // Adds source maps to bundle
-        noParse: ['jquery'] // Don't parse some modules
+        noParse: ['test/react-with-test-utils.js'] // Don't parse some modules
     },
 
     // test results reporter to use

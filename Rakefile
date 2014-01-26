@@ -62,6 +62,20 @@ file 'app/temp/browserified.js' => Dir.glob('app/*.coffee') do |task|
     #{task.name}
     --insert-global-vars ''
     -d
-  ]
+  ].join(' ')
+  sh command
+end
+
+file 'test/temp/browserified.js' => (
+  Dir.glob(['app/*.coffee', 'test/*.coffee']) - ['app/main.coffee']) do |task|
+  command = %W[
+    node_modules/.bin/browserify
+    #{task.prerequisites.join(' ')}
+    -t coffeeify -o
+    #{task.name}
+    --insert-global-vars ''
+    -x chai
+    -d
+  ].join(' ')
   sh command
 end
