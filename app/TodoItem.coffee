@@ -17,7 +17,7 @@ TodoItem = React.createClass
     # parent's `onEdit` (which in this case triggeres a re-render), and
     # immediately manipulate the DOM as if the rendering's over. Put it as a
     # callback. Refer to app.js' `edit` method
-    @props.onEdit -> (
+    @props.onEdit (->
       node = @refs.editField.getDOMNode()
       node.focus()
       node.setSelectionRange node.value.length, node.value.length
