@@ -1,5 +1,7 @@
 node_modules
 .*.swp
 app/bower_components
-app/temp
-test/temp
+app/concat
+test/concat/browserified.js
+test/concat/vendor.js
+dist

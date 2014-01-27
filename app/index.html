@@ -9,51 +9,14 @@
         <title>yeoman</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <!-- build:css styles/vendor.css -->
-        <link rel="stylesheet" href="bower_components/todomvc-common/base.css">
-        <!-- bower:css -->
-
-        <!-- endbower -->
-        <!-- endbuild -->
-        <!-- build:css(.tmp) styles/main.css -->
-        <!-- endbuild -->
-        <script src="bower_components/modernizr/modernizr.js"></script>
-
+        <link rel="stylesheet" href="concat/all.css">
+        <!--[if lt IE 9]><script src="concat/ie8.js"></script><![endif]-->
     </head>
     <body>
-
         <section id="todoapp"></section>
         <footer id="info"></footer>
 
-  <!--[if lt IE 9]>
-    <script>localStorage.clear();</script>
-    <script src="bower_components/es5-shim/es5-shim.js"></script>
-    <script src="bower_components/es5-shim/es5-sham.js"></script>
-    <script src="bower_components/console-polyfill/index.js"></script>
-    <script>
-    if (!HTMLInputElement.prototype.setSelectionRange) {
-        HTMLInputElement.prototype.setSelectionRange = function(start, end) {
-            if (this.createTextRange) {
-                var range = this.createTextRange();
-                range.collapse(true);
-                range.moveEnd('character', start);
-                range.moveStart('character', end);
-                range.select();
-            }
-        }
-    }
-    </script>
-  <![endif]-->
-
-        <!-- build:js scripts/vendor.js -->
-        <script src="bower_components/react/react-with-addons.js"></script>
-        <script src="bower_components/director/build/director.js"></script>
-        <!-- endbuild -->
-
-        <!-- build:js(.tmp) scripts/module2.js -->
-        <script src="temp/browserified.js"></script>
-        <!-- endbuild -->
-
-</body>
+        <script src="concat/vendor.js"></script>
+        <script src="concat/browserified.js"></script>
+    </body>
 </html>

@@ -54,7 +54,45 @@ task :karma do
   puts system('node_modules/.bin/karma start')
 end
 
-file 'app/temp/browserified.js' => Dir.glob('app/*.coffee') do |task|
+task :clean do
+  sh 'rm -rf app/concat'
+  sh 'rm -rf test/concat'
+  sh 'rm -rf dist'
+end
+
+file 'app/concat/all.css' => %w[
+  app/bower_components/todomvc-common/base.css
+] do |task|
+  mkdir_p 'app/concat'
+  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
+  sh command
+end
+
+file 'app/concat/ie8.js' => %w[
+  app/bower_components/modernizr/modernizr.js
+  app/ie8-clear-local-storage.js
+  app/bower_components/es5-shim/es5-shim.js
+  app/bower_components/es5-shim/es5-sham.js
+  app/bower_components/console-polyfill/index.js
+  app/ie8-set-selection-range.js
+] do |task|
+  mkdir_p 'app/concat'
+  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
+  sh command
+end
+
+file 'app/concat/vendor.js' => %w[
+  app/bower_components/todomvc-common/base.js
+  app/bower_components/react/react-with-addons.js
+  app/bower_components/director/build/director.js
+] do |task|
+  mkdir_p 'app/concat'
+  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
+  sh command
+end
+
+file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
+  mkdir_p 'app/concat'
   command = %W[
     node_modules/.bin/browserify
     #{task.prerequisites.join(' ')}
@@ -66,8 +104,16 @@ file 'app/temp/browserified.js' => Dir.glob('app/*.coffee') do |task|
   sh command
 end
 
-file 'test/temp/browserified.js' => (
+file 'app/concat' => %w[
+  app/concat/all.css
+  app/concat/ie8.js
+  app/concat/vendor.js
+  app/concat/browserified.js
+]
+
+file 'test/concat/browserified.js' => (
   Dir.glob(['app/*.coffee', 'test/*.coffee']) - ['app/main.coffee']) do |task|
+  mkdir_p 'test/concat'
   command = %W[
     node_modules/.bin/browserify
     #{task.prerequisites.join(' ')}
@@ -77,4 +123,32 @@ file 'test/temp/browserified.js' => (
     -d
   ].join(' ')
   sh command
+end
+
+file 'test/concat/vendor.js' => %w[
+  app/bower_components/todomvc-common/base.js
+  test/react-with-test-utils.js
+  app/bower_components/director/build/director.js
+] do |task|
+  mkdir_p 'test/concat'
+  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
+  sh command
+end
+
+# need to generate app/concat/ie8.js because test/concat/ie8.js symlinks to it
+file 'test/concat' => %w[
+  app/concat/ie8.js
+  test/concat/vendor.js
+  test/concat/browserified.js
+]
+
+task :dist => %w[app/concat] do
+  mkdir_p 'dist'
+  cp 'app/index.html', 'dist'
+
+  mkdir_p 'dist/concat'
+  cp 'app/concat/all.css',         'dist/concat/all.css'
+  cp 'app/concat/browserified.js', 'dist/concat/browserified.js'
+  cp 'app/concat/vendor.js',       'dist/concat/vendor.js'
+  cp 'app/concat/ie8.js',          'dist/concat/ie8.js'
 end
