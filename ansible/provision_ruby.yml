@@ -61,6 +61,11 @@
     action: git repo=git://github.com/sstephenson/ruby-build.git
             dest=~{{ruby_deploy_user}}/.rbenv/plugins/ruby-build
 
-  - name: Ruby | Installs ruby
+  - name: Install Ruby {{ruby_version}}
     shell: .rbenv/bin/rbenv install {{ruby_version}}
            creates=~{{ruby_deploy_user}}/.rbenv/versions/{{ruby_version}}
+
+  - name: Install Bundler
+    #gem: name=bundler state=present
+    #executable: ~{{ruby_deploy_user}}/.rbenv/shims/gem
+    shell: .rbenv/shims/gem install bundler
