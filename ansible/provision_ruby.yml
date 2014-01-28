@@ -1,0 +1,66 @@
+---
+- hosts: webservers
+  user: root
+  tasks:
+  - apt: pkg={{item}} state=present
+    with_items:
+    - autoconf
+    - automake
+    - bison
+    - build-essential
+    - curl
+    - exuberant-ctags
+    - git-core
+    - libreadline6
+    - libreadline6-dev
+    - libreadline-dev
+    - libsqlite3-0
+    - libsqlite3-dev
+    - libssl-dev
+    - libyaml-dev
+    - libc6-dev
+    - libncurses5-dev
+    - libtool
+    - libxml2-dev
+    - libxslt1-dev
+    - openssl
+    - sqlite3
+    - subversion
+    - zlib1g
+    - zlib1g-dev
+
+  - user: name={{ruby_deploy_user}} shell=/bin/bash
+
+  - authorized_key: user={{ruby_deploy_user}}
+                    key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- hosts: webservers
+  user: "{{ruby_deploy_user}}"
+  tasks:
+
+  - name: Install rbenv
+    git: repo=git://github.com/sstephenson/rbenv.git
+         dest=~{{ruby_deploy_user}}/.rbenv
+  
+  - name: Install rbenv bash file
+    copy: src=templates/bash_50_rbenv
+          dest=~{{ruby_deploy_user}}/.bash_50_rbenv
+          mode=700 owner={{ruby_deploy_user}}
+  
+  - name: Source rbenv bash file in .bashrc
+    lineinfile: dest=~{{ruby_deploy_user}}/.bashrc
+                regexp="^source \.bash_50_rbenv" insertafter=EOF
+                line="source .bash_50_rbenv" create=yes
+  
+  - name: Creates plugin directory
+    action: file path=~{{ruby_deploy_user}}/.rbenv/plugins/
+            owner={{ruby_deploy_user}} group={{ruby_deploy_user}}
+            mode=0755 state=directory
+  
+  - name: Install ruby-build
+    action: git repo=git://github.com/sstephenson/ruby-build.git
+            dest=~{{ruby_deploy_user}}/.rbenv/plugins/ruby-build
+
+  - name: Ruby | Installs ruby
+    shell: .rbenv/bin/rbenv install {{ruby_version}}
+           creates=~{{ruby_deploy_user}}/.rbenv/versions/{{ruby_version}}

@@ -4,3 +4,5 @@
 httpd_port: 80
 ntpserver: us.pool.ntp.org
 #repository: https://github.com/bennojoy/mywebapp.git
+ruby_deploy_user: deployer
+ruby_version: 2.0.0-p247
