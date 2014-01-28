@@ -1,6 +1,7 @@
 ---
 - hosts: webservers
   user: root
+  gather_facts: false
   tasks:
   - name: Install ntp 
     apt: pkg=ntp state=present

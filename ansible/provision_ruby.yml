@@ -1,6 +1,7 @@
 ---
 - hosts: webservers
   user: root
+  gather_facts: false
   tasks:
   - apt: pkg={{item}} state=present
     with_items:
@@ -36,6 +37,7 @@
 
 - hosts: webservers
   user: "{{ruby_deploy_user}}"
+  gather_facts: false
   tasks:
 
   - name: Install rbenv
