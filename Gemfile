@@ -9,4 +9,5 @@ group :development do
   gem 'capybara', github: 'jnicklas/capybara' # support dblclick
   gem 'selenium-webdriver'
   gem 'pry' # so I can stop capybara tests and debug them
+  gem 'yarjuf' # JUnit RSpec formatter for Jenkins
 end
