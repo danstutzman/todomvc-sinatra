@@ -14,7 +14,8 @@
     "karma-ievms": "0.0.4",
     "karma-opera-launcher": "~0.1.0",
     "karma-safari-launcher": "~0.1.1",
-    "browserify": "~3.24.1"
+    "browserify": "~3.24.1",
+    "bower": "~1.2.8"
   },
   "engines": {
     "node": ">=0.8.0"
