@@ -42,13 +42,34 @@ task :stop_selenium_server do
 end
 
 task :start_selenium_hub_server do
-  ENV['REMOTE'] = 'true'
+  ENV['REMOTE']            = 'true'
+  ENV['SELENIUM_HOST']     = 'localhost'
+  ENV['SELENIUM_PORT']     = '4444'
+  ENV['SELENIUM_BROWSER']  = 'internet explorer'
+  ENV['SELENIUM_PLATFORM'] = 'XP'
+  ENV['SELENIUM_VERSION']  = ''
+  ENV['BROWSER_URL']       = 'http://10.0.2.2:3000/index.html'
+
   $child_pid = start_selenium_server
   puts 'Wait for VirtualBox grid node to find it...'
   sleep 10
 end
 
-task :spec_ie => [:start_selenium_hub_server, :spec, :stop_selenium_server]
+task :spec_vm => [:start_selenium_hub_server, :spec, :stop_selenium_server]
+
+task :set_selenium_env_sauce do
+  ENV['REMOTE']            = 'true'
+  ENV['SELENIUM_HOST']     = 'localhost'
+  ENV['SELENIUM_PORT']     = '4445'
+  ENV['SELENIUM_BROWSER']  = 'internet explorer'
+  ENV['SELENIUM_PLATFORM'] = 'Windows XP'
+  ENV['SELENIUM_VERSION']  = '8'
+  ENV['BROWSER_URL']       = 'http://localhost:3000/index.html'
+  ENV['SAUCE_USER_NAME'] or raise "No ENV[SAUCE_USER_NAME]"
+  ENV['SAUCE_API_KEY']   or raise "No ENV[SAUCE_API_KEY]"
+end
+
+task :spec_sauce => [:set_selenium_env_sauce, :spec]
 
 task :karma do
   puts system('node_modules/.bin/karma start')
@@ -151,4 +172,17 @@ task :dist => %w[app/concat] do
   cp 'app/concat/browserified.js', 'dist/concat/browserified.js'
   cp 'app/concat/vendor.js',       'dist/concat/vendor.js'
   cp 'app/concat/ie8.js',          'dist/concat/ie8.js'
+end
+
+task :sauce_connect do
+  sauce_user_name = ENV['SAUCE_USER_NAME'] or raise "No ENV[SAUCE_USER_NAME]"
+  sauce_api_key   = ENV['SAUCE_API_KEY']   or raise "No ENV[SAUCE_API_KEY]"
+  command = %W[
+    java
+    -jar test/Sauce-Connect/Sauce-Connect.jar
+    -d
+    #{sauce_user_name}
+    #{sauce_api_key}
+  ].join(' ')
+  sh command
 end

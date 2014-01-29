@@ -1,19 +1,11 @@
 require 'helper'
 require 'open-uri'
 
-STARTING_URL = 'http://10.0.2.2:9000/index.html'
-
-pid = nil
+BROWSER_URL = ENV['BROWSER_URL'] or raise "No ENV[BROWSER_URL]"
 
 describe 'TodoMVC', type: :feature, js: true do
-  before(:all) do
-    # for IE; localStorage doesn't get cleaned otherwise
-    visit STARTING_URL
-    execute_script 'localStorage.clear()'
-  end
-
   before(:each) do
-    visit STARTING_URL
+    visit BROWSER_URL
   end
 
   it 'starts out blank' do

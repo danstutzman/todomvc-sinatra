@@ -5,3 +5,4 @@ app/concat
 test/concat/browserified.js
 test/concat/vendor.js
 dist
+sauce_connect.log
