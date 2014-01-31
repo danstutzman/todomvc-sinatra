@@ -5,3 +5,6 @@
   tasks:
     - name: Create index.html
       template: src=templates/index.html.j2 dest=/var/www/index.html
+    - user: name={{ruby_deploy_user}} shell=/bin/bash
+    - authorized_key: user={{ruby_deploy_user}}
+                      key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

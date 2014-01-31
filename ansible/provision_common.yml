@@ -3,6 +3,11 @@
   user: root
   gather_facts: false
   tasks:
+
+  - command: cp /usr/share/zoneinfo/{{timezone}} /etc/localtime
+  - command: echo {{timezone}} > /etc/timezone
+  - command: /usr/sbin/dpkg-reconfigure --frontend noninteractive t
+
   - name: Install ntp 
     apt: pkg=ntp state=present
     tags: ntp

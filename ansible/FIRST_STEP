@@ -1,0 +1,4 @@
+manual steps:
+- ssh to server with root
+  - # answer yes to trust fingerprint question
+  - apt-get update; apt-get -y upgrade; shutdown –r now

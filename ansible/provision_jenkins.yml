@@ -1,0 +1,33 @@
+---
+#- include: provision_common.yml
+- include: provision_ruby.yml
+- include: provision_nodejs.yml
+
+- hosts: jenkinsserver
+  user: root
+  gather_facts: true # necessary for ansible-jenkins
+  roles:
+    - ansible-jenkins
+    # (note: changed roles/ansible-jenkins/tasks/cli.yml from 10s to 20s)
+
+- hosts: jenkinsserver
+  user: root
+  gather_facts: false
+  tasks:
+  - get_url: url=https://repo.eclipse.org/content/groups/releases//org/eclipse/jgit/org.eclipse.jgit.pgm/3.2.0.201312181205-r/org.eclipse.jgit.pgm-3.2.0.201312181205-r.sh dest=/usr/local/bin/jgit
+  - shell: chmod +x /usr/local/bin/jgit
+  - template: src=~/.jgit_s3_jenkins dest=~/.jgit_s3_jenkins
+  - shell: chmod 600 ~/.jgit_s3_jenkins
+  - authorized_key: user=jenkins
+                    key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  - shell: chmod 0644 /opt/jenkins/jenkins-cli.jar
+
+- hosts: jenkinsserver
+  user: jenkins
+  gather_facts: false
+  tags: job
+  tasks:
+  - template: src=~/.jgit_s3_jenkins dest=~/.jgit_s3_jenkins
+  - shell: chmod 600 ~/.jgit_s3_jenkins
+  - shell: "git init; git remote add s3 amazon-s3://.jgit_s3_jenkins@jenkins.git.danielstutzman.com/; jgit fetch s3; git reset --hard s3/master; java -jar /opt/jenkins/jenkins-cli.jar -s http://localhost:8080/ restart creates=.git"
+  - debug: "msg=\"MANUAL STEP: Add 'Jenkins (Git plugin)' plugin with URL of http://IP-ADDRESS-HERE:8080 and active=true to https://github.com/danielstutzman/todomvc-sinatra/settings/hooks\""

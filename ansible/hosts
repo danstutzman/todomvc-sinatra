@@ -1,5 +1,6 @@
 [webservers]
-107.170.23.62
+#107.170.23.62
 
 [jenkinsserver]
-107.170.23.62
+todomvc-practice.do
+todomvc-practice2.do

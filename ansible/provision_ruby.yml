@@ -1,5 +1,7 @@
 ---
-- hosts: webservers
+- hosts:
+  #- webservers
+  - jenkinsserver
   user: root
   gather_facts: false
   tasks:
@@ -29,45 +31,9 @@
     - subversion
     - zlib1g
     - zlib1g-dev
+    - ruby1.9.1
+    - ruby1.9.1-dev
+    - ri1.9.1
+    - libruby1.9.1
 
-  - user: name={{ruby_deploy_user}} shell=/bin/bash
-
-  - authorized_key: user={{ruby_deploy_user}}
-                    key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-
-- hosts: webservers
-  user: "{{ruby_deploy_user}}"
-  gather_facts: false
-  tasks:
-
-  - name: Install rbenv
-    git: repo=git://github.com/sstephenson/rbenv.git
-         dest=~{{ruby_deploy_user}}/.rbenv
-  
-  - name: Install rbenv bash file
-    copy: src=templates/bash_50_rbenv
-          dest=~{{ruby_deploy_user}}/.bash_50_rbenv
-          mode=700 owner={{ruby_deploy_user}}
-  
-  - name: Source rbenv bash file in .bashrc
-    lineinfile: dest=~{{ruby_deploy_user}}/.bashrc
-                regexp="^source \.bash_50_rbenv" insertafter=EOF
-                line="source .bash_50_rbenv" create=yes
-  
-  - name: Creates plugin directory
-    action: file path=~{{ruby_deploy_user}}/.rbenv/plugins/
-            owner={{ruby_deploy_user}} group={{ruby_deploy_user}}
-            mode=0755 state=directory
-  
-  - name: Install ruby-build
-    action: git repo=git://github.com/sstephenson/ruby-build.git
-            dest=~{{ruby_deploy_user}}/.rbenv/plugins/ruby-build
-
-  - name: Install Ruby {{ruby_version}}
-    shell: .rbenv/bin/rbenv install {{ruby_version}}
-           creates=~{{ruby_deploy_user}}/.rbenv/versions/{{ruby_version}}
-
-  - name: Install Bundler
-    #gem: name=bundler state=present
-    #executable: ~{{ruby_deploy_user}}/.rbenv/shims/gem
-    shell: .rbenv/shims/gem install bundler
+  - gem: name=bundler state=present user_install=no

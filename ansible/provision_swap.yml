@@ -1,0 +1,24 @@
+---
+# https://www.digitalocean.com/community/articles/how-to-add-swap-on-ubuntu-12-04
+- hosts:
+  #- webservers
+  - jenkinsserver
+  user: root
+  gather_facts: false
+  tasks:
+  - shell: cat /proc/swaps | grep /swapfile
+    register: already_using_swapfile
+    ignore_errors: yes # grep returns exit code 1 if not found
+    changed_when: False
+  - shell: 'dd if=/dev/zero of=/swapfile bs=1024 count=512k;
+      chown root:root /swapfile; chmod 0600 /swapfile creates=/swapfile'
+  - command: mkswap /swapfile
+    when: already_using_swapfile.rc == 1 # when grep's return code was 1
+  - command: swapon /swapfile
+    when: already_using_swapfile.rc == 1
+  - lineinfile: "dest=/etc/fstab regexp=swapfile
+    line='/swapfile       none    swap    sw      0       0 '"
+    when: already_using_swapfile.rc == 1
+  #- shell: "echo 0 | sudo tee /proc/sys/vm/swappiness"
+  #- lineinfile: dest=/etc/sysctl.conf regexp=vm.swappiness
+  #  line="vm.swappiness = 0"

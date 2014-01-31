@@ -1,0 +1,14 @@
+Go to :80/zabbix
+Step through setups
+Login with Admin/zabbix
+Go to Administration -> Users -> Users dropdown
+Click Admin
+Click Change Password
+In LastPass click Generate Secure Password
+Save
+In LastPass click Save Site
+  update username so it's Admin not Administrator
+Configuration -> Hosts
+  click Zabbix Server
+  change Status from Not Monitored to Monitored
+  click Save
