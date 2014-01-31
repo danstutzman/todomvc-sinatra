@@ -10,4 +10,6 @@ group :development do
   gem 'selenium-webdriver'
   gem 'pry' # so I can stop capybara tests and debug them
   gem 'yarjuf' # JUnit RSpec formatter for Jenkins
+  gem 'tugboat' # call Digital Ocean API from command-line
+  gem 'zabbixapi' # call Zabbix API from Ruby
 end
