@@ -37,3 +37,4 @@ tugboat wait "$DROPLET" # will droplet become active after snapshot?
 IMAGE_ID=$(tugboat images | grep "$SNAPSHOT" | awk '{print $3}' | awk -F, '{print $1}')
 echo "$IMAGE_ID" > var/base_image_id
 tugboat destroy -c "$DROPLET"
+rm var/snapshotme_ip

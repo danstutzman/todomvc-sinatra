@@ -137,5 +137,6 @@
   - get_url: "dest=~/zabbix-release_2.2-1+precise_all.deb
       url=http://repo.zabbix.com/zabbix/2.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_2.2-1+precise_all.deb"
   - command: "dpkg -i zabbix-release_2.2-1+precise_all.deb"
+  - command: "rm zabbix-release_2.2-1+precise_all.deb"
   - command: apt-get update
   - apt: pkg=zabbix-agent state=present
