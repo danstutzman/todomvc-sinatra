@@ -1,0 +1,39 @@
+#!/bin/bash -e
+# -e means exit on error
+cd $(dirname $0)
+
+SIZE_ID=66 # 512MB
+IMAGE_ID=1505527 # Ubuntu 12.04.3 x32
+REGION_ID=4 # NYC2
+SSH_KEY_IDS=41226 # daniels-macbook-pro
+DROPLET=snapshotme
+SNAPSHOT=base
+
+echo Looking for existing droplet named $DROPLET...
+ID=$(tugboat info $DROPLET | grep "^ID:" | awk '{print $2}')
+if [ "$ID" == "" ]; then
+  echo Creating $DROPLET droplet...
+  tugboat create -s $SIZE_ID -i $IMAGE_ID -r $REGION_ID -k $SSH_KEY_IDS -p "$DROPLET"
+  tugboat wait "$DROPLET"
+fi
+
+echo Looking up its IP...
+IP=$(tugboat info $DROPLET | grep "^IP:" | awk '{print $2}')
+echo "$IP" > var/snapshotme_ip
+if [ "$IP" == "" ]; then echo 1>&2 "Couldn't find IP of $DROPLET"; exit 1; fi
+cat ~/.ssh/known_hosts | egrep -v "(^|,)$IP" > ~/.ssh/known_hosts.new
+mv ~/.ssh/known_hosts.new ~/.ssh/known_hosts
+ssh -o StrictHostKeyChecking=no "root@$IP" "echo" # add to known_hosts
+
+echo Running all playbooks with hosts: all on $DROPLET...
+./do -i var/snapshotme_ip -l "$IP" *.yml
+
+echo "Untested code follows because I can't delete a snapshot yet"
+exit 0
+tugboat halt "$DROPLET"
+tugboat wait "$DROPLET" -s off
+tugboat snapshot "$SNAPSHOT" "$DROPLET"
+tugboat wait "$DROPLET" # will droplet become active after snapshot?
+IMAGE_ID=$(tugboat images | grep "$SNAPSHOT" | awk '{print $3}' | awk -F, '{print $1}')
+echo "$IMAGE_ID" > var/base_image_id
+tugboat destroy -c "$DROPLET"

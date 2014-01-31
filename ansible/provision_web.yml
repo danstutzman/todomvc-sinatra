@@ -1,6 +1,4 @@
 ---
-- include: provision_common.yml
-
 - name: install apache2
   hosts: webservers
   user: root

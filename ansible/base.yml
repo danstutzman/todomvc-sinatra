@@ -1,0 +1,141 @@
+---
+- hosts: all
+  user: root
+  gather_facts: true # need ip address
+  tags: update
+  tasks:
+  - command: apt-get update
+  - command: apt-get -y upgrade
+  - command: reboot
+  - local_action: "wait_for delay=2
+    host={{ansible_default_ipv4.address}} port=22 timeout=60"
+
+- hosts: all
+  user: root
+  gather_facts: false
+  tags: ntp
+  tasks:
+  - name: Install ntp 
+    apt: pkg=ntp state=present
+    tags: ntp
+  - name: Configure ntp file
+    template: src=templates/ntp.conf.j2 dest=/etc/ntp.conf
+    tags: ntp
+    notify: restart ntp
+  - name: Start the ntp service
+    service: name=ntp state=started enabled=true
+    tags: ntp
+  handlers:
+  - name: restart ntp
+    service: name=ntp state=restarted
+  - name: restart iptables
+    service: name=iptables state=restarted
+
+- hosts: all
+  user: root
+  gather_facts: false
+  tags: timezone
+  tasks:
+  - command: "cp /usr/share/zoneinfo/{{timezone}} /etc/localtime"
+  - command: "echo {{timezone}} > /etc/timezone"
+  - command: /usr/sbin/dpkg-reconfigure --frontend noninteractive tzdata
+
+# https://www.digitalocean.com/community/articles/how-to-add-swap-on-ubuntu-12-04
+- hosts: all
+  user: root
+  gather_facts: false
+  tags: swap
+  tasks:
+  - shell: cat /proc/swaps | grep /swapfile
+    register: already_using_swapfile
+    ignore_errors: yes # grep returns exit code 1 if not found
+    changed_when: False
+  - shell: 'dd if=/dev/zero of=/swapfile bs=1024 count=512k;
+      chown root:root /swapfile; chmod 0600 /swapfile creates=/swapfile'
+  - command: mkswap /swapfile
+    when: already_using_swapfile.rc == 1 # when grep's return code was 1
+  - command: swapon /swapfile
+    when: already_using_swapfile.rc == 1
+  - lineinfile: "dest=/etc/fstab regexp=swapfile
+    line='/swapfile       none    swap    sw      0       0 '"
+    when: already_using_swapfile.rc == 1
+  - shell: "echo 0 | sudo tee /proc/sys/vm/swappiness"
+  - lineinfile: 'dest=/etc/sysctl.conf regexp=vm.swappiness
+    line="vm.swappiness = 0"'
+
+- hosts: all
+  user: root
+  gather_facts: false
+  tags: ruby
+  tasks:
+  - apt: pkg={{item}} state=present
+    with_items:
+    - autoconf
+    - automake
+    - bison
+    - build-essential
+    - curl
+    - exuberant-ctags
+    - git-core
+    - libreadline6
+    - libreadline6-dev
+    - libreadline-dev
+    - libsqlite3-0
+    - libsqlite3-dev
+    - libssl-dev
+    - libyaml-dev
+    - libc6-dev
+    - libncurses5-dev
+    - libtool
+    - libxml2-dev
+    - libxslt1-dev
+    - openssl
+    - sqlite3
+    - subversion
+    - zlib1g
+    - zlib1g-dev
+    - ruby1.9.1
+    - ruby1.9.1-dev
+    - ri1.9.1
+    - libruby1.9.1
+  - gem: name=bundler state=present user_install=no
+
+# Adapted from https://github.com/aenglund/nodejs-ansible
+- hosts: all
+  user: root
+  gather_facts: false
+  tags: nodejs
+  tasks:
+  - name: Node.js | Checking installed version of node.js
+    shell: /usr/bin/test "$(node -v 2> /dev/null)" = v${node_version}
+    register: wanted_version_installed
+    ignore_errors: True
+  - name: Node.js | Fetching node.js source
+    action: get_url url=http://nodejs.org/dist/v${node_version}/${node_tarball} dest=/tmp/
+    when: wanted_version_installed.rc == 1
+  - name: Node.js | Unpack node.js tarball
+    command: tar zxf ${node_tarball} chdir=/tmp
+    when: wanted_version_installed.rc == 1
+  - name: Node.js | Configure
+    shell: /usr/bin/python ./configure --prefix=${node_path} chdir=/tmp/${node_prefix}
+    when: wanted_version_installed.rc == 1
+  - name: Node.js | Make
+    shell: /usr/bin/make chdir=/tmp/${node_prefix}/
+    when: wanted_version_installed.rc == 1
+  - name: Node.js | Make install
+    shell: /usr/bin/make install chdir=/tmp/${node_prefix}/
+    when: wanted_version_installed.rc == 1
+  - name: Install bower node package
+    command: ${node_path}/bin/npm install -g bower
+
+# adapted from https://www.zabbix.com/documentation/2.2/manual/installation/install_from_packages
+- hosts: all
+  user: root
+  gather_facts: false
+  tags: zabbix-agent
+  tasks:
+  - get_url: "dest=~/zabbix-release_2.2-1+precise_all.deb
+      url=http://repo.zabbix.com/zabbix/2.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_2.2-1+precise_all.deb"
+  - command: "dpkg -i zabbix-release_2.2-1+precise_all.deb"
+  - command: apt-get update
+  - apt: pkg=zabbix-agent state=present

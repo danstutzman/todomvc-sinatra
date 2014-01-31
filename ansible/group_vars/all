@@ -6,3 +6,8 @@ ntpserver: us.pool.ntp.org
 #repository: https://github.com/bennojoy/mywebapp.git
 ruby_deploy_user: deployer
 ruby_version: 2.0.0-p247
+timezone: America/Denver
+node_version: "0.10.12"
+node_prefix: "node-v${node_version}"
+node_tarball: "${node_prefix}.tar.gz"
+node_path: "/usr/local"
