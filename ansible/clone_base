@@ -1,0 +1,25 @@
+#!/bin/bash -e
+# -e means exit on error
+cd $(dirname $0)
+
+SIZE_ID=66 # 512MB
+REGION_ID=4 # NYC2
+SSH_KEY_IDS=41226 # daniels-macbook-pro
+SNAPSHOT=base
+
+if [ "$1" == "" ]; then echo 1>&2 "arg 1: name of droplet"; exit 1; fi
+DROPLET="$1"
+
+#IMAGE_ID="$(cat var/base_image_id)"
+#echo Creating droplet named $DROPLET...
+#tugboat create -s $SIZE_ID -i $IMAGE_ID -r $REGION_ID -k $SSH_KEY_IDS -p "$DROPLET"
+tugboat wait "$DROPLET"
+
+echo Looking up its IP...
+IP=$(tugboat info $DROPLET | grep "^IP:" | awk '{print $2}')
+if [ "$IP" == "" ]; then echo 1>&2 "Couldn't find IP of $DROPLET"; exit 1; fi
+cat ~/.ssh/known_hosts | egrep -v "(^|,)$IP" > ~/.ssh/known_hosts.new
+mv ~/.ssh/known_hosts.new ~/.ssh/known_hosts
+ssh -o StrictHostKeyChecking=no "root@$IP" "echo" # add to known_hosts
+
+echo Not automated yet: create line in /etc/hosts and ssh to that domain
