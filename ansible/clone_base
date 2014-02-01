@@ -10,9 +10,9 @@ SNAPSHOT=base
 if [ "$1" == "" ]; then echo 1>&2 "arg 1: name of droplet"; exit 1; fi
 DROPLET="$1"
 
-#IMAGE_ID="$(cat var/base_image_id)"
-#echo Creating droplet named $DROPLET...
-#tugboat create -s $SIZE_ID -i $IMAGE_ID -r $REGION_ID -k $SSH_KEY_IDS -p "$DROPLET"
+IMAGE_ID="$(cat var/base_image_id)"
+echo Creating droplet named $DROPLET...
+tugboat create -s $SIZE_ID -i $IMAGE_ID -r $REGION_ID -k $SSH_KEY_IDS -p "$DROPLET"
 tugboat wait "$DROPLET"
 
 echo Looking up its IP...
