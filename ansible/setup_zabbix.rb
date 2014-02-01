@@ -15,9 +15,31 @@ zbx = ZabbixApi.connect({
   password: File.read(PASSWORD_PATH).strip,
 })
 
-#user_id_for = zbx.users.all
-#user_id = zbx.users.get_id(name: 'Zabbix')
-#p zbx.users.all
+mediatype_id_for = zbx.mediatypes.all
+zbx.mediatypes.update({
+  mediatypeid: mediatype_id_for['Email'],
+  smtp_server: 'localhost',
+  smtp_helo: 'localhost',
+  smtp_email: 'root@localhost',
+  status: 0 # 0=enabled, strangely enough
+})
+
+user_id_for = zbx.users.all
+zbx.client.api_request({
+  method: 'user.updatemedia',
+  params: {
+    users: [{ userid: user_id_for['Zabbix'] }],
+    medias: [{
+      mediatypeid: 1, # email
+      sendto:      'dtstutz@gmail.com',
+      period:      '1-7,00:00-24:00',
+      active:      0, # 0=active, strangely enough
+      severity:    63, # all severity levels
+    }],
+  },
+})#p zbx.users.all
+
+exit 1
 
 group_id_for = zbx.hostgroups.all
 linux_servers = group_id_for['Linux servers']
