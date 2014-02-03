@@ -1,0 +1,24 @@
+---
+- hosts: all
+  user: postgres
+  gather_facts: false
+  tasks:
+  - lineinfile: dest=/etc/postgresql/9.1/main/postgresql.conf
+      regexp="^wal_level = "
+      line="wal_level = archive"
+    notify: restart postgresql
+  - lineinfile: dest=/etc/postgresql/9.1/main/postgresql.conf
+      regexp="^archive_mode = "
+      line="archive_mode = on"
+    notify: restart postgresql
+  - lineinfile: dest=/etc/postgresql/9.1/main/postgresql.conf
+      regexp="^archive_command = "
+      line="archive_command = 'envdir /etc/wal-e.d/env /usr/local/bin/wal-e wal-push %p'"
+    notify: restart postgresql
+  - lineinfile: dest=/etc/postgresql/9.1/main/postgresql.conf
+      regexp="^archive_timeout = "
+      line="archive_timeout = 60"
+    notify: restart postgresql
+  handlers:
+  - name: restart postgresql
+    service: name=postgresql state=restarted

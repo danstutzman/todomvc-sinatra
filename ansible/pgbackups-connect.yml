@@ -1,0 +1,59 @@
+---
+# TODO ahead of time:
+# - setup s3 bucket
+# - create iam user
+# - grant them the following perm (adapt bucket name):
+# {
+#   "Statement": [
+#     {
+#       "Sid": "Stmt1355040132425",
+#       "Action": [
+#         "s3:GetObject",
+#         "s3:ListBucket",
+#         "s3:PutObject",
+#         "s3:GetBucketLocation",
+#         "s3:DeleteObject"
+#       ],
+#       "Effect": "Allow",
+#       "Resource": [
+#         "arn:aws:s3:::onlinerubytutor.pgbackups.danielstutzman.com",
+#         "arn:aws:s3:::onlinerubytutor.pgbackups.danielstutzman.com/*"
+#       ]
+#     }
+#   ]
+# }
+
+# Adapted from
+# http://blog.opbeat.com/2013/01/07/postgresql-backup-to-s3-part-one/
+- hosts: all
+  user: root
+  gather_facts: false
+  vars:
+  - wale_s3_prefix: s3://onlinerubytutor.pgbackups.danielstutzman.com
+  vars_prompt:
+  - name: aws_access_key_id
+    private: no # echo to console
+  - name: aws_secret_access_key
+    private: no # echo to console
+  tasks:
+  - apt: pkg={{item}} state=present
+    with_items:
+    - daemontools
+    - python-dev
+    - python-pip
+    - lzop
+    - pv
+    - s3cmd # not necessarily but helps debug
+  - command: pip install wal-e
+  - shell: "umask u=rwx,g=rx,o=; mkdir -p /etc/wal-e.d/env creates=/etc/wal-e.d/env"
+  - shell: "umask u=rwx,g=rx,o=; echo '{{aws_secret_access_key}}' > /etc/wal-e.d/env/AWS_SECRET_ACCESS_KEY creates=/etc/wal-e.d/env/AWS_SECRET_ACCESS_KEY"
+  - shell: "umask u=rwx,g=rx,o=; echo '{{aws_access_key_id}}' > /etc/wal-e.d/env/AWS_ACCESS_KEY_ID creates=/etc/wal-e.d/env/AWS_ACCESS_KEY_ID"
+  - shell: "umask u=rwx,g=rx,o=; echo '{{wale_s3_prefix}}' > /etc/wal-e.d/env/WALE_S3_PREFIX creates=/etc/wal-e.d/env/WALE_S3_PREFIX"
+  - command: "chown -R root:postgres /etc/wal-e.d"
+
+- hosts: all
+  user: root
+  gather_facts: false
+  tasks:
+  - authorized_key: user=postgres
+                    key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

@@ -1,0 +1,3 @@
+#!/bin/bash
+# example delete command
+# ssh "postgres@onlinerubytutor.do" -C "/usr/bin/envdir /etc/wal-e.d/env /usr/local/bin/wal-e delete --confirm before base_00000001000000000000001B_00000032"

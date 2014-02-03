@@ -1,0 +1,2 @@
+#!/bin/bash
+ssh postgres@onlinerubytutor.do -C "/usr/bin/envdir /etc/wal-e.d/env /usr/local/bin/wal-e backup-list --detail"
