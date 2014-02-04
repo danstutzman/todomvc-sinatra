@@ -13,6 +13,8 @@
     with_items:
     - zabbix-server-mysql
     - zabbix-frontend-php
+    - heirloom-mailx
+    - sendmail
   - lineinfile: dest=/etc/apache2/conf.d/zabbix
       regexp="^#? ?php_value date.timezone"
       line="php_value date.timezone {{timezone}}"
