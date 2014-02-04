@@ -1,0 +1,26 @@
+---
+- hosts: all
+  user: root
+  gather_facts: false
+  tasks:
+  - apt: pkg=rsyslog-gnutls state=present
+  - get_url: url=https://papertrailapp.com/tools/syslog.papertrail.crt
+             dest=/etc/syslog.papertrail.crt
+  - template: src=templates/99-papertrail.conf.j2
+              dest=/etc/rsyslog.d/99-papertrail.conf
+    notify: restart rsyslog
+  - command: gem install remote_syslog
+  - template: src=templates/log_files.yml.j2
+              dest=/etc/log_files.yml
+    notify: restart rsyslog
+  - template: src=templates/remote_syslog.init.d
+              dest=/etc/init.d/remote_syslog
+    notify: restart rsyslog
+  - command: chmod 0755 /etc/init.d/remote_syslog
+  - service: name=remote_syslog state=started enabled=true
+             pattern=remote_syslog
+  handlers:
+  - name: restart rsyslog
+    service: name=rsyslog state=restarted
+  - name: restart remote_syslog
+    service: name=remote_syslog state=restarted

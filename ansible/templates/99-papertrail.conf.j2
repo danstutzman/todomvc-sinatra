@@ -1,0 +1,21 @@
+# use TLS for security
+$DefaultNetstreamDriverCAFile /etc/syslog.papertrail.crt # trust these CAs
+$ActionSendStreamDriver gtls # use gtls netstream driver
+$ActionSendStreamDriverMode 1 # require TLS
+$ActionSendStreamDriverAuthMode x509/name # authenticate by hostname
+
+# queue up to 100,000 lines if can't connect to papertrail
+$ActionResumeInterval 10
+$ActionQueueSize 100000
+$ActionQueueDiscardMark 97500
+$ActionQueueHighWaterMark 80000
+$ActionQueueType LinkedList
+$ActionQueueFileName papertrailqueue
+$ActionQueueCheckpointInterval 100
+$ActionQueueMaxDiskSpace 2g
+$ActionResumeRetryCount -1
+$ActionQueueSaveOnShutdown on
+$ActionQueueTimeoutEnqueue 10
+$ActionQueueDiscardSeverity 0
+
+*.*          @@logs.papertrailapp.com:{{papertrail_port}}
