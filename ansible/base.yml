@@ -13,6 +13,18 @@
 - hosts: all
   user: root
   gather_facts: false
+  tags: nopasswords
+  tasks:
+  - lineinfile: dest=/etc/ssh/sshd_config regexp="^PasswordAuthentication "
+      insertafter="#PasswordAuthentication " line="PasswordAuthentication no"
+    notify: restart ssh
+  handlers:
+  - name: restart ssh
+    service: name=ssh state=restarted
+
+- hosts: all
+  user: root
+  gather_facts: false
   tags: ntp
   tasks:
   - name: Install ntp 
