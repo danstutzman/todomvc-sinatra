@@ -12,6 +12,12 @@
   - apt: pkg=unattended-upgrades state=present
   - template: src=templates/20auto-upgrades
               dest=/etc/apt/apt.conf.d/20auto-upgrades
+  - lineinfile: dest=/etc/apt/apt.conf.d/50unattended-upgrades
+      regexp="^Unattended-Upgrade::Mail "
+      insertafter="^//Unattended-Upgrade::Mail "
+      line='Unattended-Upgrade::Mail "dtstutz@gmail.com";'
+  # FYI: you can see number of uninstall security packages with
+  #   /usr/lib/update-notifier/apt-check --human-readable
 
 - hosts: all
   user: root
