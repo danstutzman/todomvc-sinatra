@@ -47,7 +47,6 @@ zabbis_servers = group_id_for['Zabbix servers']
 
 template_id_for = zbx.templates.all
 linux_template = template_id_for['Template OS Linux']
-server_template = template_id_for['Template App Zabbix Server']
 
 ip_host_pairs = %w[
   162.243.127.91|todomvc-practice3
@@ -72,11 +71,7 @@ ip_host_pairs.each do |ip_host_pair|
   all_host_ids.push host_id
 end
 
-host_id_for = zbx.hosts.all
-server_host_id = host_id_for[SERVER_HOST.sub(/\.do$/, '')]
-
 zbx.templates.mass_add(hosts_id: all_host_ids, templates_id: [linux_template])
-zbx.templates.mass_add(hosts_id: [server_host_id], templates_id: [server_template])
 zbx.client.api_request({
   method: 'host.massupdate',
   params: {
