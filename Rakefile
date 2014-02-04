@@ -117,12 +117,17 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
   command = %W[
     node_modules/.bin/browserify
     #{task.prerequisites.join(' ')}
-    -t coffeeify -o
-    #{task.name}
+    -t coffeeify
+    -o #{task.name}
     --insert-global-vars ''
     -d
   ].join(' ')
   sh command
+end
+
+file 'app/concat/bg.png' =>
+  'app/bower_components/todomvc-common/bg.png' do |task|
+  copy task.prerequisites.first, task.name
 end
 
 file 'app/concat' => %w[
@@ -130,6 +135,7 @@ file 'app/concat' => %w[
   app/concat/ie8.js
   app/concat/vendor.js
   app/concat/browserified.js
+  app/concat/bg.png
 ]
 
 file 'test/concat/browserified.js' => (
@@ -138,8 +144,8 @@ file 'test/concat/browserified.js' => (
   command = %W[
     node_modules/.bin/browserify
     #{task.prerequisites.join(' ')}
-    -t coffeeify -o
-    #{task.name}
+    -t coffeeify
+    -o #{task.name}
     --insert-global-vars ''
     -d
   ].join(' ')
@@ -163,15 +169,75 @@ file 'test/concat' => %w[
   test/concat/browserified.js
 ]
 
-task :dist => %w[app/concat] do
+file 'dist/concat/all.css' => ['app/concat/all.css'] do |task|
+  mkdir_p 'dist/concat'
+  command = %W[
+    cat
+    #{task.prerequisites.join(' ')}
+    | node_modules/clean-css/bin/cleancss
+    -o #{task.name}
+  ].join(' ')
+  sh command
+end
+
+file 'app/bower_components/todomvc-common/base.min.js' =>
+     'app/bower_components/todomvc-common/base.js' do |task|
+  command = %W[
+    node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
+    #{task.prerequisites.join(' ')}
+    > #{task.name}
+  ].join(' ')
+  sh command
+end
+
+file 'dist/concat/ie8.js' => 'app/concat/ie8.js' do |task|
+  command = %W[
+    node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
+    #{task.prerequisites.join(' ')}
+    > #{task.name}
+  ].join(' ')
+  sh command
+end
+
+file 'dist/concat/vendor.js' => %w[
+  app/bower_components/todomvc-common/base.min.js
+  app/bower_components/react/react-with-addons.min.js
+  app/bower_components/director/build/director.min.js
+] do |task|
+  mkdir_p 'dist/concat'
+  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
+  sh command
+end
+
+file 'dist/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
+  mkdir_p 'app/concat'
+  command = %W[
+    node_modules/.bin/browserify
+    #{task.prerequisites.join(' ')}
+    -t coffeeify
+    -t uglifyify
+    --insert-global-vars ''
+    -d
+    | node node_modules/exorcist/bin/exorcist.js
+    dist/concat/browserified.js.map
+    > #{task.name}
+  ].join(' ')
+  sh command
+end
+
+task :dist => %w[
+  app/index.html
+  dist/concat/all.css
+  dist/concat/ie8.js
+  dist/concat/vendor.js
+  dist/concat/browserified.js
+  app/concat/bg.png
+] do
   mkdir_p 'dist'
   cp 'app/index.html', 'dist'
 
   mkdir_p 'dist/concat'
-  cp 'app/concat/all.css',         'dist/concat/all.css'
-  cp 'app/concat/browserified.js', 'dist/concat/browserified.js'
-  cp 'app/concat/vendor.js',       'dist/concat/vendor.js'
-  cp 'app/concat/ie8.js',          'dist/concat/ie8.js'
+  cp 'app/concat/bg.png',          'dist/concat/bg.png'
 end
 
 task :sauce_connect do
