@@ -2,3 +2,4 @@
 cd `dirname $0`
 ANSIBLE_BIN=~/dev/ansible/bin
 $ANSIBLE_BIN/ansible-playbook -i var/hosts "$@"
+rm -f ~/*.retry
