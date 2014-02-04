@@ -19,6 +19,10 @@
       regexp="^archive_timeout = "
       line="archive_timeout = 60"
     notify: restart postgresql
+  - cron: name="run base pgbackup" user=postgres
+          job="/usr/bin/envdir /etc/wal-e.d/env /usr/local/bin/wal-e backup-push /var/lib/postgresql/9.1/main"
+          hour=8 minute=15
+          # in UTC time, subtract 6 for MDT in summer, 7 for MST in winter
   handlers:
   - name: restart postgresql
     service: name=postgresql state=restarted
