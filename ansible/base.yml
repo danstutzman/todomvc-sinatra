@@ -9,6 +9,9 @@
   - command: reboot
   - local_action: "wait_for delay=2
     host={{ansible_default_ipv4.address}} port=22 timeout=60"
+  - apt: pkg=unattended-upgrades state=present
+  - template: src=templates/20auto-upgrades
+              dest=/etc/apt/apt.conf.d/20auto-upgrades
 
 - hosts: all
   user: root
