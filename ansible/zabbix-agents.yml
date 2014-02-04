@@ -12,6 +12,9 @@
   - lineinfile: dest=/etc/zabbix/zabbix_agentd.conf regexp="^Hostname="
       line="Hostname={{ansible_hostname}}"
     notify: restart zabbix-agent
+  - template: src=templates/userparameter_aptcheck.conf
+              dest=/etc/zabbix/zabbix_agentd.d/userparameter_aptcheck.conf
+    notify: restart zabbix-agent
   handlers:
   - name: restart zabbix-agent
     service: name=zabbix-agent state=restarted
