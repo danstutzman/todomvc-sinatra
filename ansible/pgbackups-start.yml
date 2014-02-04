@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: postgres-servers
   user: postgres
   gather_facts: false
   tasks:
