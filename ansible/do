@@ -1,5 +1,5 @@
 #!/bin/bash
 cd `dirname $0`
 ANSIBLE_BIN=~/dev/ansible/bin
-$ANSIBLE_BIN/ansible-playbook -i var/hosts "$@"
+$ANSIBLE_BIN/ansible-playbook -i var/inventory "$@"
 rm -f ~/*.retry

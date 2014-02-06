@@ -3,7 +3,7 @@
 cd $(dirname $0)
 
 SIZE_ID=66 # 512MB
-REGION_ID=4 # NYC2
+REGION_ID=4 # NYC2, currently only region to support private network
 SSH_KEY_IDS=41226 # daniels-macbook-pro
 SNAPSHOT=base
 
@@ -15,11 +15,28 @@ echo Creating droplet named $DROPLET...
 tugboat create -s $SIZE_ID -i $IMAGE_ID -r $REGION_ID -k $SSH_KEY_IDS -p "$DROPLET"
 tugboat wait "$DROPLET"
 
-echo Looking up its IP...
-IP=$(tugboat info $DROPLET | grep "^IP:" | awk '{print $2}')
-if [ "$IP" == "" ]; then echo 1>&2 "Couldn't find IP of $DROPLET"; exit 1; fi
-cat ~/.ssh/known_hosts | egrep -v "(^|,)$IP" > ~/.ssh/known_hosts.new
+echo Looking up its external IP address...
+EXTERNAL_IP=$(tugboat info $DROPLET | grep "^IP:" | awk '{print $2}')
+if [ "$EXTERNAL_IP" == "" ]; then
+  echo 1>&2 "Couldn't find external IP address of $DROPLET"
+  exit 1
+fi
+cat ~/.ssh/known_hosts | egrep -v "(^|,)$EXTERNAL_IP" > ~/.ssh/known_hosts.new
 mv ~/.ssh/known_hosts.new ~/.ssh/known_hosts
-ssh -o StrictHostKeyChecking=no "root@$IP" "echo" # add to known_hosts
 
-echo Not automated yet: create line in /etc/hosts and ssh to that domain
+# side benefit: adds ip to known_hosts so future connections don't ask
+echo Looking up its internal IP address...
+sleep 5 # unfortunately we get a timeout error otherwise
+INTERNAL_IP=$(ssh -o StrictHostKeyChecking=no "root@$EXTERNAL_IP" "ifconfig eth1 | awk -F: '/inet /{print \$2}' | cut -f1 -d ' '")
+if [ "$INTERNAL_IP" == "" ]; then
+  echo 1>&2 "Couldn't find internal IP address of $DROPLET"
+  exit 1
+fi
+
+touch var/etc_hosts # so the next line doesn't error
+# need the || echo since egrep -v returns exit code 1 if no lines were
+# input, and we're running bash with the -ex flag
+cat var/etc_hosts | egrep -v "$DROPLET.do[ei]" || echo > var/etc_hosts.new
+mv var/etc_hosts.new var/etc_hosts
+echo $EXTERNAL_IP $DROPLET.doe >> var/etc_hosts
+echo $INTERNAL_IP $DROPLET.doi >> var/etc_hosts
