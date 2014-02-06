@@ -19,7 +19,16 @@ module TodomvcBackend
     use Rack::Deflater
 
     get '/' do
-      send_file 'public/index.html'
+      `rake app/concat`
+      send_file 'app/index.html'
+    end
+
+    get '/todos.json' do
+      '[{"id":"1", "title":"test", "completed":false}]'
+    end
+
+    get '/learn.json' do
+      '[]'
     end
   end
 end

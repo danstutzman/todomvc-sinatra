@@ -1,4 +1,5 @@
 Utils      = require('./Utils.coffee')
+Ajax       = require('./Ajax.coffee')
 TodoItem   = require('./TodoItem.coffee')
 TodoFooter = require('./TodoFooter.coffee')
 
@@ -21,6 +22,8 @@ TodoApp = React.createClass
       '/active':    @setState.bind(this, nowShowing: ACTIVE_TODOS)
       '/completed': @setState.bind(this, nowShowing: COMPLETED_TODOS)
     router.init()
+    Ajax.get @props.source, {}, (result) =>
+      @setState todos: JSON.parse(result)
     @refs.newField.getDOMNode().focus()
 
   handleNewTodoKeyDown: (event) ->

@@ -1,6 +1,7 @@
 TodoApp = require('./TodoApp.coffee')
 
-React.renderComponent TodoApp(null), document.getElementById('todoapp')
+props = { source: 'http://localhost:9292/todos.json' }
+React.renderComponent TodoApp(props), document.getElementById('todoapp')
 
 React.renderComponent(
   React.DOM.div(null,
