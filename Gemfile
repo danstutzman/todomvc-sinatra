@@ -4,6 +4,11 @@ gem 'sinatra', require: 'sinatra/base'
 gem 'thin'
 gem 'dotenv'
 
+# Database
+gem 'sequel'
+gem 'sinatra-sequel'
+gem 'pg'
+
 group :development do
   gem 'bundler'
   gem 'rake'

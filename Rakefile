@@ -1,9 +1,14 @@
 require 'rubygems'
 require 'bundler'
-Bundler.setup :default, :development
+Bundler.require
 
 require 'rake'
 require 'open-uri'
+require 'dotenv/tasks'
+require 'logger'
+
+RACK_ENV = ENV['RACK_ENV'] || 'development'
+Dotenv.load! ".env.#{RACK_ENV}"
 
 $child_pid = nil
 
@@ -251,4 +256,37 @@ task :sauce_connect do
     #{sauce_api_key}
   ].join(' ')
   sh command
+end
+
+namespace :db do
+  task :sequel do
+    require 'sequel'
+    Sequel.extension :migration
+    $db = Sequel.connect(ENV.fetch('DATABASE_URL'))
+    $db.logger = Logger.new($stdout)
+  end
+
+  desc 'Run DB migrations'
+  task :migrate, [:version] => :sequel do |t, args|
+    if args[:version]
+      puts "Migrating to version #{args[:version]}"
+      Sequel::Migrator.run $db, 'db/migrations',
+        target: args[:version].to_i
+    else
+      puts "Migrating to latest"
+      Sequel::Migrator.run $db, 'db/migrations'
+    end
+  end
+
+  desc 'Rollback migration'
+  task :rollback => :sequel do
+    version = $db[:schema_info].first[:version]
+    Sequel::Migrator.apply $db, 'db/migrations', version - 1
+  end
+
+  desc 'Dump the database schema'
+  task :dump => :sequel do
+    sh "sequel -d #{$db.url} > db/schema.rb"
+    sh "pg_dump --schema-only #{$db.url} > db/schema.sql"
+  end
 end
