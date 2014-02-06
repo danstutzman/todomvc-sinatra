@@ -13,8 +13,7 @@ TodoApp = React.createClass
   displayName: 'TodoApp'
 
   getInitialState: ->
-    todos = Utils.store 'react-todos'
-    { todos: todos, nowShowing: ALL_TODOS, editing: null }
+    { todos: [], nowShowing: ALL_TODOS, editing: null }
 
   componentDidMount: ->
     router = Router
@@ -77,7 +76,8 @@ TodoApp = React.createClass
     @setState todos: newTodos
 
   componentDidUpdate: ->
-    Utils.store 'react-todos', @state.todos
+    Ajax.put @props.source,
+      { todos: JSON.stringify(@state.todos) }, ((result) =>)
 
   render: ->
     filter = (todo) ->
