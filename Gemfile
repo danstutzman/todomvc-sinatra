@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'sinatra'
+gem 'sinatra', require: 'sinatra/base'
+gem 'thin'
+gem 'dotenv'
 
 group :development do
   gem 'bundler'
