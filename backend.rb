@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler'
 Bundler.require
+
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
 
