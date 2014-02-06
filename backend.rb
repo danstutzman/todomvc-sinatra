@@ -9,8 +9,6 @@ module TodomvcBackend
   class App < Sinatra::Application
     configure do
       disable :method_override
-      disable :static
-
       set :sessions,
           httponly:     true,
           secure:       production?,
@@ -21,7 +19,7 @@ module TodomvcBackend
     use Rack::Deflater
 
     get '/' do
-      'here'
+      send_file 'public/index.html'
     end
   end
 end
