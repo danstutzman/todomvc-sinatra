@@ -42,6 +42,8 @@ TodoItem = React.createClass
       @handleSubmit()
 
   handleChange: (event) ->
+    console.log event
+    console.log event.target
     @setState editText: event.target.value
 
   getInitialState: ->
@@ -57,6 +59,10 @@ TodoItem = React.createClass
       className: React.addons.classSet
         completed: @props.todo.get('completed')
         editing: @props.editing
+
+    label_attrs =
+      ref: 'label',
+      onDoubleClick: @handleEdit
 
     check_box_attrs =
       className: 'toggle'
@@ -75,7 +81,7 @@ TodoItem = React.createClass
     React.DOM.li(li_attrs,
       React.DOM.div(className: 'view',
         React.DOM.input(check_box_attrs),
-        React.DOM.label(onDoubleClick: @handleEdit, @props.todo.get('title')),
+        React.DOM.label(label_attrs, @props.todo.get('title')),
         React.DOM.button(className: 'destroy', onClick: @props.onDestroy)
       ),
       React.DOM.input(edit_box_attrs)
