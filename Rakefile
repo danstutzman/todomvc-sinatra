@@ -160,23 +160,10 @@ file 'test/concat/browserified.js' => (
   sh command
 end
 
-file 'test/concat/vendor.js' => %w[
-  app/bower_components/todomvc-common/base.js
-  test/react-with-test-utils.js
-  app/bower_components/director/build/director.js
-  app/bower_components/jquery/jquery.js
-  app/bower_components/underscore/underscore.js
-  app/bower_components/backbone/backbone.js
-] do |task|
-  mkdir_p 'test/concat'
-  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
-  sh command
-end
-
 # need to generate app/concat/ie8.js because test/concat/ie8.js symlinks to it
 file 'test/concat' => %w[
   app/concat/ie8.js
-  test/concat/vendor.js
+  app/concat/vendor.js
   test/concat/browserified.js
 ]
 
