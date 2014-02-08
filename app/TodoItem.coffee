@@ -1,3 +1,4 @@
+#React = require('react/addons')
 Todo = require('./Todo.coffee')
 
 ESCAPE_KEY = 27
@@ -42,8 +43,6 @@ TodoItem = React.createClass
       @handleSubmit()
 
   handleChange: (event) ->
-    console.log event
-    console.log event.target
     @setState editText: event.target.value
 
   getInitialState: ->
@@ -65,6 +64,7 @@ TodoItem = React.createClass
       onDoubleClick: @handleEdit
 
     check_box_attrs =
+      ref: 'checkbox'
       className: 'toggle'
       type: 'checkbox'
       checked: @props.todo.get('completed')

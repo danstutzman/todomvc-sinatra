@@ -1,12 +1,13 @@
+#React      = require('react')
 Utils      = require('./Utils.coffee')
 TodoItem   = require('./TodoItem.coffee')
 TodoFooter = require('./TodoFooter.coffee')
 Todo       = require('./Todo.coffee')
 Todos      = require('./Todos.coffee')
 
-window.ALL_TODOS       = 'all'
-window.ACTIVE_TODOS    = 'active'
-window.COMPLETED_TODOS = 'completed'
+ALL_TODOS       = 'all'
+ACTIVE_TODOS    = 'active'
+COMPLETED_TODOS = 'completed'
 ENTER_KEY = 13
 
 TodoApp = React.createClass
@@ -17,9 +18,12 @@ TodoApp = React.createClass
     initialTodos: React.PropTypes.array.isRequired
 
   getInitialState: ->
-    todos: new Todos(@props.initialTodos)
-    nowShowing: ALL_TODOS
-    editing: null
+    todos = new Todos(@props.initialTodos)
+    return {
+      todos: todos
+      nowShowing: ALL_TODOS
+      editing: todos.models[0].cid
+    }
 
   componentDidMount: ->
     router = Router
@@ -82,8 +86,9 @@ TodoApp = React.createClass
           true
     shownTodos = @state.todos.filter filter, this
 
-    todo_to_item = (todo) ->
+    todo_to_item = (todo, i) ->
       TodoItem
+        ref: "ref#{i}",
         key: todo.cid
         todo: todo
         onToggle: @toggle.bind(this, todo)

@@ -1,9 +1,7 @@
 TodoApp = require('./TodoApp.coffee')
 
-React.renderComponent(
-  TodoApp({ initialTodos: initialTodos }),
-  document.getElementById('todoapp')
-)
+app = TodoApp({ initialTodos: initialTodos })
+React.renderComponent(app, document.getElementById('todoapp'))
 
 React.renderComponent(
   React.DOM.div(null,
@@ -20,4 +18,4 @@ React.renderComponent(
 
 window.Todos = require('./Todos.coffee')
 window.Todo  = require('./Todo.coffee')
-
+window.app = app

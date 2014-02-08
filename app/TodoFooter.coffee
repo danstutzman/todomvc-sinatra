@@ -1,4 +1,9 @@
+#React = require('react')
 Utils = require('./Utils.coffee')
+
+ALL_TODOS       = 'all'
+ACTIVE_TODOS    = 'active'
+COMPLETED_TODOS = 'completed'
 
 TodoFooter = React.createClass
 
