@@ -215,8 +215,9 @@ file 'dist/concat/vendor.js' => %w[
   app/bower_components/react/react-with-addons.min.js
   app/bower_components/director/build/director.min.js
   app/bower_components/jquery/jquery.min.js
-  app/bower_components/underscore/underscore.min.js
-  app/bower_components/backbone/backbone.min.js
+  app/bower_components/underscore/underscore-min.js
+  app/newline.js
+  app/bower_components/backbone/backbone-min.js
 ] do |task|
   mkdir_p 'dist/concat'
   command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
