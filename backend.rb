@@ -30,7 +30,12 @@ module TodomvcBackend
 
     get '/' do
       `rake app/concat`
-      send_file 'app/index.html'
+
+      todo_json = TodoItem.all.to_json
+
+      html = File.read('app/index.html')
+      html.sub! /var initialTodos = \[\];/, "var initialTodos = #{todo_json};"
+      html
     end
 
     get '/todos' do

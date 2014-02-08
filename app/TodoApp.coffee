@@ -14,7 +14,9 @@ TodoApp = React.createClass
   displayName: 'TodoApp'
 
   getInitialState: ->
-    { todos: new Todos(), nowShowing: ALL_TODOS, editing: null }
+    todos: new Todos(@props.initialTodos)
+    nowShowing: ALL_TODOS
+    editing: null
 
   componentDidMount: ->
     router = Router
@@ -24,7 +26,6 @@ TodoApp = React.createClass
     router.init()
     @state.todos.on 'add remove change', =>
       @setState todos: @state.todos
-    @state.todos.fetch()
     @refs.newField.getDOMNode().focus()
 
   handleNewTodoKeyDown: (event) ->
