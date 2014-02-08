@@ -45,6 +45,18 @@ module TodomvcBackend
       todo.to_json
     end
 
+    # just updates, not creates or deletes
+    put '/todos' do
+      hashes = JSON.parse(request.body.read)
+      ids = TodoItem.select(:id).map { |todo| todo.id }
+      hashes.each do |hash|
+        todo = TodoItem.find(id: hash['id'])
+        id = hash.delete('id')
+        todo.update(hash)
+      end
+      'ok'
+    end
+
     put '/todos/:id' do
       todo = TodoItem[params[:id]]
       hash = JSON.parse(request.body.read)

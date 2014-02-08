@@ -1,7 +1,8 @@
 Utils      = require('./Utils.coffee')
-Ajax       = require('./Ajax.coffee')
 TodoItem   = require('./TodoItem.coffee')
 TodoFooter = require('./TodoFooter.coffee')
+Todo       = require('./Todo.coffee')
+Todos      = require('./Todos.coffee')
 
 window.ALL_TODOS       = 'all'
 window.ACTIVE_TODOS    = 'active'
@@ -13,7 +14,7 @@ TodoApp = React.createClass
   displayName: 'TodoApp'
 
   getInitialState: ->
-    { todos: [], nowShowing: ALL_TODOS, editing: null }
+    { todos: new Todos(), nowShowing: ALL_TODOS, editing: null }
 
   componentDidMount: ->
     router = Router
@@ -21,89 +22,80 @@ TodoApp = React.createClass
       '/active':    @setState.bind(this, nowShowing: ACTIVE_TODOS)
       '/completed': @setState.bind(this, nowShowing: COMPLETED_TODOS)
     router.init()
-    Ajax.get @props.source, {}, (result) =>
-      @setState todos: JSON.parse(result)
+    @state.todos.fetch success: (collection, response, options) =>
+      @setState todos: @state.todos
     @refs.newField.getDOMNode().focus()
 
   handleNewTodoKeyDown: (event) ->
     return if event.keyCode != ENTER_KEY
     val = @refs.newField.getDOMNode().value.trim()
     if val
-      newTodo = { id: Utils.uuid(), title: val, completed: false }
-      @setState todos: @state.todos.concat([newTodo])
+      @state.todos.create(title: val, completed: false)
+      @setState todos: @state.todos
       @refs.newField.getDOMNode().value = ''
     false
 
   toggleAll: (event) ->
     checked = event.target.checked
-    # Note: it's usually better to use immutable data structures since
-    # they're easier to reason about and React works very well with them.
-    # That's why we use map() and filter() everywhere instead of mutating
-    # the array or todo items themselves.
-    newTodos = @state.todos.map (todo) ->
-      Utils.extend {}, todo, completed: checked
-    @setState todos: newTodos
+    @state.todos.each (todo) ->
+      todo.set 'completed', checked
+    Backbone.sync 'update', @state.todos
+    @setState todos: @state.todos
 
-  toggle: (todoToToggle) ->
-    newTodos = @state.todos.map (todo) ->
-      if todo isnt todoToToggle
-        todo
-      else
-        Utils.extend({}, todo, { completed: not todo.completed })
-    @setState todos: newTodos
+  toggle: (todo) ->
+    todo.set 'completed', not todo.get('completed')
+    todo.save()
+    @setState todos: @state.todos
 
   destroy: (todo) ->
-    newTodos = @state.todos.filter((candidate) -> candidate.id isnt todo.id)
-    @setState todos: newTodos
+    todo.destroy()
+    @setState todos: @state.todos
 
   edit: (todo, callback) ->
     # refer to todoItem.js `handleEdit` for the reasoning behind the callback
-    @setState { editing: todo.id }, -> callback()
+    @setState { editing: todo.cid }, -> callback()
 
-  save: (todoToSave, text) ->
-    newTodos = @state.todos.map (todo) ->
-      if todo isnt todoToSave
-        todo
-      else
-        Utils.extend({}, todo, { title: text })
-    @setState todos: newTodos, editing: null
+  # warning: may be called twice in a row
+  save: (todo, text) ->
+    todo.set 'title', text
+    if todo.changedAttributes()
+      todo.save()
+    @setState todos: @state.todos, editing: null
 
   cancel: ->
     @setState editing: null
 
   clearCompleted: ->
-    newTodos = @state.todos.filter((todo) -> not todo.completed)
-    @setState todos: newTodos
-
-  componentDidUpdate: ->
-    Ajax.put @props.source,
-      { todos: JSON.stringify(@state.todos) }, ((result) =>)
+    toClear = @state.todos.filter (todo) -> todo.get('completed')
+    for todo in toClear
+      todo.destroy()
+    @setState todos: @state.todos
 
   render: ->
     filter = (todo) ->
       switch @state.nowShowing
         when ACTIVE_TODOS
-          not todo.completed
+          not todo.get('completed')
         when COMPLETED_TODOS
-          todo.completed
+          todo.get('completed')
         else
           true
     shownTodos = @state.todos.filter filter, this
 
     todo_to_item = (todo) ->
       TodoItem
-        key: todo.id
+        key: todo.cid
         todo: todo
         onToggle: @toggle.bind(this, todo)
         onDestroy: @destroy.bind(this, todo)
         onEdit: @edit.bind(this, todo)
-        editing: @state.editing is todo.id
+        editing: @state.editing is todo.cid
         onSave: @save.bind(this, todo)
         onCancel: @cancel
     todoItems = shownTodos.map todo_to_item, this
 
     counter = (accum, todo) ->
-      if todo.completed then accum else accum + 1
+      if todo.get('completed') then accum else accum + 1
     activeTodoCount = @state.todos.reduce counter, 0
     completedCount = @state.todos.length - activeTodoCount
 

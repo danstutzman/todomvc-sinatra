@@ -22,11 +22,11 @@ TodoItem = React.createClass
       node.focus()
       node.setSelectionRange node.value.length, node.value.length
     ).bind(this)
-    @setState editText: @props.todo.title
+    @setState editText: @props.todo.get('title')
 
   handleKeyDown: (event) ->
     if event.keyCode is ESCAPE_KEY
-      @setState editText: @props.todo.title
+      @setState editText: @props.todo.get('title')
       @props.onCancel()
     else if event.keyCode is ENTER_KEY
       @handleSubmit()
@@ -35,24 +35,23 @@ TodoItem = React.createClass
     @setState editText: event.target.value
 
   getInitialState: ->
-    editText: @props.todo.title
+    editText: @props.todo.get('title')
 
   shouldComponentUpdate: (nextProps, nextState) ->
-    nextProps.todo.id isnt @props.todo.id or
-    nextProps.todo isnt @props.todo or
+    @props.todo.changedAttributes() != false or
     nextProps.editing isnt @props.editing or
     nextState.editText isnt @state.editText
 
   render: ->
     li_attrs =
       className: React.addons.classSet
-        completed: @props.todo.completed
+        completed: @props.todo.get('completed')
         editing: @props.editing
 
     check_box_attrs =
       className: 'toggle'
       type: 'checkbox'
-      checked: @props.todo.completed
+      checked: @props.todo.get('completed')
       onChange: @props.onToggle
 
     edit_box_attrs =
@@ -66,7 +65,7 @@ TodoItem = React.createClass
     React.DOM.li(li_attrs,
       React.DOM.div(className: 'view',
         React.DOM.input(check_box_attrs),
-        React.DOM.label(onDoubleClick: @handleEdit, @props.todo.title),
+        React.DOM.label(onDoubleClick: @handleEdit, @props.todo.get('title')),
         React.DOM.button(className: 'destroy', onClick: @props.onDestroy)
       ),
       React.DOM.input(edit_box_attrs)
