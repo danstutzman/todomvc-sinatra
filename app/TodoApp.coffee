@@ -13,6 +13,9 @@ TodoApp = React.createClass
 
   displayName: 'TodoApp'
 
+  propTypes:
+    initialTodos: React.PropTypes.array.isRequired
+
   getInitialState: ->
     todos: new Todos(@props.initialTodos)
     nowShowing: ALL_TODOS

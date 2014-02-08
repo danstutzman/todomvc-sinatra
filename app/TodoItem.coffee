@@ -1,7 +1,17 @@
+Todo = require('./Todo.coffee')
+
 ESCAPE_KEY = 27
 ENTER_KEY = 13
 
 TodoItem = React.createClass
+  propTypes:
+    todo:      React.PropTypes.instanceOf(Todo).isRequired
+    editing:   React.PropTypes.bool.isRequired
+    onEdit:    React.PropTypes.func.isRequired
+    onSave:    React.PropTypes.func.isRequired
+    onDestroy: React.PropTypes.func.isRequired
+    onCancel:  React.PropTypes.func.isRequired
+    onToggle:  React.PropTypes.func.isRequired
 
   handleSubmit: ->
     val = @state.editText.trim()
