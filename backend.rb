@@ -33,28 +33,29 @@ module TodomvcBackend
       send_file 'app/index.html'
     end
 
-    get '/todos.json' do
+    get '/todos' do
       TodoItem.all.to_json
     end
 
-    put '/todos.json' do
-      hashes = JSON.parse(request['todos'])
-      ids = TodoItem.select(:id).map { |todo| todo.id }
-      ids_to_delete = Set.new(ids)
-      hashes.each do |hash|
-        todo = TodoItem.find(id: hash['id'])
-        ids_to_delete.delete hash['id']
-        if todo.nil?
-          todo = TodoItem.new
-          todo.id = hash['id']
-        end
-        todo.title = hash['title']
-        todo.completed = hash['completed']
-        todo.save
-      end
-      ids_to_delete.each do |id|
-        TodoItem.find(id: id).delete
-      end
+    post '/todos' do
+      hash = JSON.parse(request.body.read)
+      id = hash.delete('id')
+      todo = TodoItem.new(hash)
+      todo.save
+      todo.to_json
+    end
+
+    put '/todos/:id' do
+      todo = TodoItem[params[:id]]
+      hash = JSON.parse(request.body.read)
+      id = hash.delete('id')
+      todo.update(hash)
+      todo.to_json
+    end
+
+    delete '/todos/:id' do
+      todo = TodoItem[params[:id]]
+      todo.destroy
       'OK'
     end
 
