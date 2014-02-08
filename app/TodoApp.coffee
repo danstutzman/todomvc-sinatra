@@ -109,13 +109,14 @@ TodoApp = React.createClass
 
     main = null
     if @state.todos.length
-      existing_input_attrs =
+      toggle_all_checkbox_attrs =
         id: 'toggle-all'
+        ref: 'toggle_all'
         type: 'checkbox'
         onChange: @toggleAll
         checked: activeTodoCount is 0
       main = React.DOM.section(id: 'main',
-        React.DOM.input(existing_input_attrs),
+        React.DOM.input(toggle_all_checkbox_attrs),
         React.DOM.ul(id: 'todo-list', todoItems)
       )
 
