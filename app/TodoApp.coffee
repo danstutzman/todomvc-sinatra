@@ -22,8 +22,9 @@ TodoApp = React.createClass
       '/active':    @setState.bind(this, nowShowing: ACTIVE_TODOS)
       '/completed': @setState.bind(this, nowShowing: COMPLETED_TODOS)
     router.init()
-    @state.todos.fetch success: (collection, response, options) =>
+    @state.todos.on 'add remove change', =>
       @setState todos: @state.todos
+    @state.todos.fetch()
     @refs.newField.getDOMNode().focus()
 
   handleNewTodoKeyDown: (event) ->
@@ -31,7 +32,6 @@ TodoApp = React.createClass
     val = @refs.newField.getDOMNode().value.trim()
     if val
       @state.todos.create(title: val, completed: false)
-      @setState todos: @state.todos
       @refs.newField.getDOMNode().value = ''
     false
 
@@ -40,16 +40,13 @@ TodoApp = React.createClass
     @state.todos.each (todo) ->
       todo.set 'completed', checked
     Backbone.sync 'update', @state.todos
-    @setState todos: @state.todos
 
   toggle: (todo) ->
     todo.set 'completed', not todo.get('completed')
     todo.save()
-    @setState todos: @state.todos
 
   destroy: (todo) ->
     todo.destroy()
-    @setState todos: @state.todos
 
   edit: (todo, callback) ->
     # refer to todoItem.js `handleEdit` for the reasoning behind the callback
@@ -60,7 +57,7 @@ TodoApp = React.createClass
     todo.set 'title', text
     if todo.changedAttributes()
       todo.save()
-    @setState todos: @state.todos, editing: null
+    @setState editing: null
 
   cancel: ->
     @setState editing: null
@@ -69,7 +66,6 @@ TodoApp = React.createClass
     toClear = @state.todos.filter (todo) -> todo.get('completed')
     for todo in toClear
       todo.destroy()
-    @setState todos: @state.todos
 
   render: ->
     filter = (todo) ->
