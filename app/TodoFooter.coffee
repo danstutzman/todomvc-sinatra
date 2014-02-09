@@ -1,13 +1,15 @@
 Utils = require('./Utils.coffee')
 
 TodoFooter = React.createClass
+  handleClearCompleted: ->
+    @props.doCommand 'delete_completed_todos'
 
   render: ->
     activeTodoWord = Utils.pluralize(@props.count, 'item')
 
     clear_button = null
     if @props.completedCount > 0
-      attrs = { id: "clear-completed", onClick: @props.onClearCompleted }
+      attrs = { id: "clear-completed", onClick: @handleClearCompleted }
       clear_button = React.DOM.button(attrs,
         '', 'Clear completed (', @props.completedCount, ')', ''
       )

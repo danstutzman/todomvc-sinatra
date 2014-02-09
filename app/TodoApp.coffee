@@ -19,7 +19,6 @@ TodoApp = React.createClass
 
   getInitialState: ->
     nowShowing: ALL_TODOS
-    editing: null
 
   componentDidMount: ->
     router = Router
@@ -35,7 +34,6 @@ TodoApp = React.createClass
     if val
       @props.doCommand 'create_todo', title: val
       @refs.newField.getDOMNode().value = ''
-    false
 
   toggleAll: (event) ->
     @props.doCommand 'set_completed_on_all_todos',
@@ -47,24 +45,11 @@ TodoApp = React.createClass
   destroy: (todo) ->
     @props.doCommand 'delete_todo', cid: todo.cid
 
-  edit: (todo, callback) ->
-    # refer to todoItem.js `handleEdit` for the reasoning behind the callback
-    @setState { editing: todo.cid }, -> callback()
-
-  # warning: may be called twice in a row
-  save: (todo, text) ->
-    if text != todo.get('title')
-      @props.doCommand 'set_title_on_todo', cid: todo.cid, title: text
-    @setState editing: null
-
-  cancel: ->
-    @setState editing: null
-
   clearCompleted: ->
     @props.doCommand 'delete_completed_todos'
 
   render: ->
-    filter = (todo) ->
+    shownTodos = @props.todos.filter (todo) =>
       switch @state.nowShowing
         when ACTIVE_TODOS
           not todo.get('completed')
@@ -72,20 +57,12 @@ TodoApp = React.createClass
           todo.get('completed')
         else
           true
-    shownTodos = @props.todos.filter filter, this
 
-    todo_to_item = (todo) ->
+    todoItems = shownTodos.map (todo) =>
       TodoItem
         key: todo.cid
         todo: todo
-        onToggle: @toggle.bind(this, todo)
-        onDestroy: @destroy.bind(this, todo)
-        onEdit: @edit.bind(this, todo)
-        editing: @state.editing is todo.cid
-        onSave: @save.bind(this, todo)
-        onCancel: @cancel
         doCommand: @props.doCommand
-    todoItems = shownTodos.map todo_to_item, this
 
     counter = (accum, todo) ->
       if todo.get('completed') then accum else accum + 1
@@ -98,7 +75,7 @@ TodoApp = React.createClass
         count: activeTodoCount
         completedCount: completedCount
         nowShowing: @state.nowShowing
-        onClearCompleted: @clearCompleted
+        doCommand: @props.doCommand
 
     main = null
     if @props.todos.length

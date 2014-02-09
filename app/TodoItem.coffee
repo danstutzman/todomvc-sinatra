@@ -6,63 +6,62 @@ ENTER_KEY = 13
 TodoItem = React.createClass
   propTypes:
     todo:      React.PropTypes.instanceOf(Todo).isRequired
-    editing:   React.PropTypes.bool.isRequired
-    onEdit:    React.PropTypes.func.isRequired
-    onSave:    React.PropTypes.func.isRequired
-    onDestroy: React.PropTypes.func.isRequired
-    onCancel:  React.PropTypes.func.isRequired
-    onToggle:  React.PropTypes.func.isRequired
+    doCommand: React.PropTypes.func.isRequired
 
+  getInitialState: ->
+    isEditing: false
+    editText: @props.todo.get('title')
+
+  # warning: may be called twice
   handleSubmit: ->
     val = @state.editText.trim()
-    if val
-      @props.onSave val
-      @setState editText: val
-    else
-      @props.onDestroy()
-    false
+    if val == ''
+      @props.doCommand 'delete_todo', cid: @props.todo.cid
+    else if val != @props.todo.get('title')
+      @props.doCommand 'set_title_on_todo',
+        cid: @props.todo.cid, title: val
+    @setState isEditing: false
 
   handleEdit: ->
-    # react optimizes renders by batching them. This means you can't call
-    # parent's `onEdit` (which in this case triggeres a re-render), and
-    # immediately manipulate the DOM as if the rendering's over. Put it as a
-    # callback. Refer to app.js' `edit` method
-    @props.onEdit (->
+    @setState editText: @props.todo.get('title'), isEditing: true, ->
       node = @refs.editField.getDOMNode()
       node.focus()
       node.setSelectionRange node.value.length, node.value.length
-    ).bind(this)
-    @setState editText: @props.todo.get('title')
 
   handleKeyDown: (event) ->
     if event.keyCode is ESCAPE_KEY
-      @setState editText: @props.todo.get('title')
-      @props.onCancel()
+      @setState editText: @props.todo.get('title'), isEditing: false
     else if event.keyCode is ENTER_KEY
       @handleSubmit()
 
   handleChange: (event) ->
     @setState editText: event.target.value
 
-  getInitialState: ->
-    editText: @props.todo.get('title')
+  handleToggle: (event) ->
+    @props.doCommand 'toggle_completed_on_todo', cid: @props.todo.cid
 
   shouldComponentUpdate: (nextProps, nextState) ->
     @props.todo.changedAttributes() != false or
-    nextProps.editing isnt @props.editing or
+    nextState.isEditing isnt @state.isEditing or
     nextState.editText isnt @state.editText
+
+  handleDestroy: (event) ->
+    @props.doCommand 'delete_todo', cid: @props.todo.cid
 
   render: ->
     li_attrs =
       className: React.addons.classSet
         completed: @props.todo.get('completed')
-        editing: @props.editing
+        editing: @state.isEditing
+
+    label_attrs =
+      onDoubleClick: @handleEdit
 
     check_box_attrs =
       className: 'toggle'
       type: 'checkbox'
       checked: @props.todo.get('completed')
-      onChange: @props.onToggle
+      onChange: @handleToggle
 
     edit_box_attrs =
       ref: 'editField'
@@ -75,8 +74,8 @@ TodoItem = React.createClass
     React.DOM.li(li_attrs,
       React.DOM.div(className: 'view',
         React.DOM.input(check_box_attrs),
-        React.DOM.label(onDoubleClick: @handleEdit, @props.todo.get('title')),
-        React.DOM.button(className: 'destroy', onClick: @props.onDestroy)
+        React.DOM.label(label_attrs, @props.todo.get('title')),
+        React.DOM.button(className: 'destroy', onClick: @handleDestroy)
       ),
       React.DOM.input(edit_box_attrs)
     )
