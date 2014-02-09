@@ -4,12 +4,15 @@ Bundler.require
 
 require 'logger'
 require 'json'
+require 'sinatra'
 
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
 
 $db = Sequel.connect(ENV.fetch('DATABASE_URL'))
 $db.logger = Logger.new($stdout)
+
+set :run, false # don't automatically start web server
 
 module TodomvcBackend
   class TodoItem < Sequel::Model
@@ -24,6 +27,7 @@ module TodomvcBackend
           secure:       production?,
           expire_after: 60 * 60 * 24 * 365,
           secret:       ENV['SESSION_SECRET']
+      set :run, false
     end
 
     use Rack::Deflater

@@ -45,8 +45,9 @@ require './backend'
 Capybara.run_server = true
 Capybara.app_host = 'http://0.0.0.0:3000'
 Capybara.server_port = 3000
-Capybara.app = Sinatra::Application
+Capybara.app = TodomvcBackend::App.new
 Capybara.server do |app, port| # Run web server from 0.0.0.0 so vms can see it
   require 'rack/handler/webrick'
-  Rack::Handler::WEBrick.run(app, :Host => '0.0.0.0', :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+  Rack::Handler::WEBrick.run(app, :Host => '0.0.0.0', :Port => 3000, :AccessLog => [])
+ #, :Logger => WEBrick::Log::new(nil, 0))
 end
