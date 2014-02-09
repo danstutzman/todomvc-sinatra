@@ -12,6 +12,15 @@ Dotenv.load! ".env.#{RACK_ENV}"
 
 $child_pid = nil
 
+def create_with_sh(command, path)
+  begin
+    sh "#{command} > #{path}"
+  rescue
+    sh "rm -f #{path}"
+    raise
+  end
+end
+
 require 'rspec/core/rake_task'
 desc 'Run specs'
 RSpec::Core::RakeTask.new do |t|
@@ -90,8 +99,8 @@ file 'app/concat/all.css' => %w[
   app/bower_components/todomvc-common/base.css
 ] do |task|
   mkdir_p 'app/concat'
-  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
-  sh command
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
 end
 
 file 'app/concat/ie8.js' => %w[
@@ -103,8 +112,8 @@ file 'app/concat/ie8.js' => %w[
   app/ie8-set-selection-range.js
 ] do |task|
   mkdir_p 'app/concat'
-  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
-  sh command
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
 end
 
 file 'app/concat/vendor.js' => %w[
@@ -116,8 +125,8 @@ file 'app/concat/vendor.js' => %w[
   app/bower_components/backbone/backbone.js
 ] do |task|
   mkdir_p 'app/concat'
-  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
-  sh command
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
 end
 
 file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
@@ -126,11 +135,10 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
     node_modules/.bin/browserify
     #{task.prerequisites.join(' ')}
     -t coffeeify
-    -o #{task.name}
     --insert-global-vars ''
     -d
   ].join(' ')
-  sh command
+  create_with_sh command, task.name
 end
 
 file 'app/concat/bg.png' =>
@@ -153,11 +161,10 @@ file 'test/concat/browserified.js' => (
     node_modules/.bin/browserify
     #{task.prerequisites.join(' ')}
     -t coffeeify
-    -o #{task.name}
     --insert-global-vars ''
     -d
   ].join(' ')
-  sh command
+  create_with_sh command, task.name
 end
 
 file 'test/concat/vendor.js' => %w[
@@ -169,8 +176,8 @@ file 'test/concat/vendor.js' => %w[
   app/bower_components/backbone/backbone.js
 ] do |task|
   mkdir_p 'test/concat'
-  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
-  sh command
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
 end
 
 # need to generate app/concat/ie8.js because test/concat/ie8.js symlinks to it
@@ -186,9 +193,8 @@ file 'dist/concat/all.css' => ['app/concat/all.css'] do |task|
     cat
     #{task.prerequisites.join(' ')}
     | node_modules/clean-css/bin/cleancss
-    -o #{task.name}
   ].join(' ')
-  sh command
+  create_with_sh command, task.name
 end
 
 file 'app/bower_components/todomvc-common/base.min.js' =>
@@ -196,18 +202,16 @@ file 'app/bower_components/todomvc-common/base.min.js' =>
   command = %W[
     node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
     #{task.prerequisites.join(' ')}
-    > #{task.name}
   ].join(' ')
-  sh command
+  create_with_sh command, task.name
 end
 
 file 'dist/concat/ie8.js' => 'app/concat/ie8.js' do |task|
   command = %W[
     node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
     #{task.prerequisites.join(' ')}
-    > #{task.name}
   ].join(' ')
-  sh command
+  create_with_sh command, task.name
 end
 
 file 'dist/concat/vendor.js' => %w[
@@ -220,24 +224,24 @@ file 'dist/concat/vendor.js' => %w[
   app/bower_components/backbone/backbone-min.js
 ] do |task|
   mkdir_p 'dist/concat'
-  command = "cat #{task.prerequisites.join(' ')} > #{task.name}"
-  sh command
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
 end
 
 file 'dist/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
   mkdir_p 'app/concat'
   command = %W[
     node_modules/.bin/browserify
-    #{task.prerequisites.join(' ')}
-    -t coffeeify
-    -t uglifyify
-    --insert-global-vars ''
-    -d
-    | node node_modules/exorcist/bin/exorcist.js
-    dist/concat/browserified.js.map
-    > #{task.name}
+      #{task.prerequisites.join(' ')}
+      -t coffeeify
+      -t uglifyify
+      --insert-global-vars ''
+      -d
+  | node
+      node_modules/exorcist/bin/exorcist.js
+      dist/concat/browserified.js.map
   ].join(' ')
-  sh command
+  create_with_sh command, task.name
 end
 
 task :dist => %w[
