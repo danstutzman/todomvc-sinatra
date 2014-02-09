@@ -1,5 +1,4 @@
 require 'helper'
-require 'open-uri'
 
 BROWSER_URL = ENV['BROWSER_URL'] or raise "No ENV[BROWSER_URL]"
 
