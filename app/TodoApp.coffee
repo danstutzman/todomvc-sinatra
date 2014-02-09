@@ -22,7 +22,7 @@ TodoApp = React.createClass
     return {
       todos: todos
       nowShowing: ALL_TODOS
-      editing: todos.models[0].cid
+      editing: null
     }
 
   componentDidMount: ->
