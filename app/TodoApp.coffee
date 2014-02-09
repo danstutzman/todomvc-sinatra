@@ -14,10 +14,10 @@ TodoApp = React.createClass
   displayName: 'TodoApp'
 
   propTypes:
-    initialTodos: React.PropTypes.array.isRequired
+    todos:      React.PropTypes.instanceOf(Todos).isRequired
+    doCommand:  React.PropTypes.func.isRequired
 
   getInitialState: ->
-    todos: new Todos(@props.initialTodos)
     nowShowing: ALL_TODOS
     editing: null
 
@@ -27,30 +27,25 @@ TodoApp = React.createClass
       '/active':    @setState.bind(this, nowShowing: ACTIVE_TODOS)
       '/completed': @setState.bind(this, nowShowing: COMPLETED_TODOS)
     router.init()
-    @state.todos.on 'add remove change', =>
-      @setState todos: @state.todos
     @refs.newField.getDOMNode().focus()
 
   handleNewTodoKeyDown: (event) ->
     return if event.keyCode != ENTER_KEY
     val = @refs.newField.getDOMNode().value.trim()
     if val
-      @state.todos.create(title: val, completed: false)
+      @props.doCommand 'create_todo', title: val
       @refs.newField.getDOMNode().value = ''
     false
 
   toggleAll: (event) ->
-    checked = event.target.checked
-    @state.todos.each (todo) ->
-      todo.set 'completed', checked
-    Backbone.sync 'update', @state.todos
+    @props.doCommand 'set_completed_on_all_todos',
+      completed: event.target.checked
 
   toggle: (todo) ->
-    todo.set 'completed', not todo.get('completed')
-    todo.save()
+    @props.doCommand 'toggle_completed_on_todo', cid: todo.cid
 
   destroy: (todo) ->
-    todo.destroy()
+    @props.doCommand 'delete_todo', cid: todo.cid
 
   edit: (todo, callback) ->
     # refer to todoItem.js `handleEdit` for the reasoning behind the callback
@@ -58,18 +53,15 @@ TodoApp = React.createClass
 
   # warning: may be called twice in a row
   save: (todo, text) ->
-    todo.set 'title', text
-    if todo.changedAttributes()
-      todo.save()
+    if text != todo.get('title')
+      @props.doCommand 'set_title_on_todo', cid: todo.cid, title: text
     @setState editing: null
 
   cancel: ->
     @setState editing: null
 
   clearCompleted: ->
-    toClear = @state.todos.filter (todo) -> todo.get('completed')
-    for todo in toClear
-      todo.destroy()
+    @props.doCommand 'delete_completed_todos'
 
   render: ->
     filter = (todo) ->
@@ -80,7 +72,7 @@ TodoApp = React.createClass
           todo.get('completed')
         else
           true
-    shownTodos = @state.todos.filter filter, this
+    shownTodos = @props.todos.filter filter, this
 
     todo_to_item = (todo) ->
       TodoItem
@@ -92,12 +84,13 @@ TodoApp = React.createClass
         editing: @state.editing is todo.cid
         onSave: @save.bind(this, todo)
         onCancel: @cancel
+        doCommand: @props.doCommand
     todoItems = shownTodos.map todo_to_item, this
 
     counter = (accum, todo) ->
       if todo.get('completed') then accum else accum + 1
-    activeTodoCount = @state.todos.reduce counter, 0
-    completedCount = @state.todos.length - activeTodoCount
+    activeTodoCount = @props.todos.reduce counter, 0
+    completedCount = @props.todos.length - activeTodoCount
 
     footer = null
     if activeTodoCount or completedCount
@@ -108,7 +101,7 @@ TodoApp = React.createClass
         onClearCompleted: @clearCompleted
 
     main = null
-    if @state.todos.length
+    if @props.todos.length
       existing_input_attrs =
         id: 'toggle-all'
         type: 'checkbox'
