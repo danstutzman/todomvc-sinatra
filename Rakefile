@@ -62,11 +62,13 @@ task :start_selenium_hub_server do
   ENV['SELENIUM_BROWSER']  = 'internet explorer'
   ENV['SELENIUM_PLATFORM'] = 'XP'
   ENV['SELENIUM_VERSION']  = ''
-  ENV['BROWSER_URL']       = 'http://10.0.2.2:3000/index.html'
+  ENV['BROWSER_URL']       = 'http://10.0.2.2:3000/test_harness.html'
 
+  if false
   $child_pid = start_selenium_server
   puts 'Wait for VirtualBox grid node to find it...'
   sleep 10
+  end
 end
 
 task :spec_vm => [:start_selenium_hub_server, :spec, :stop_selenium_server]
@@ -155,7 +157,7 @@ file 'app/concat' => %w[
 ]
 
 file 'test/concat/browserified.js' => (
-  Dir.glob(['app/*.coffee', 'test/*.coffee']) - ['app/main.coffee']) do |task|
+  Dir.glob(['app/*.coffee', 'test/*.coffee']) - ['app/main.coffeeDISABLED']) do |task|
   mkdir_p 'test/concat'
   command = %W[
     node_modules/.bin/browserify

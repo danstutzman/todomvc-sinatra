@@ -1,0 +1,35 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>yeoman</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="concat/all.css">
+        <!--[if lt IE 9]><script src="concat/ie8.js"></script><![endif]-->
+    </head>
+    <body>
+        <script>var initialTodos = [];</script>
+        <div id='info'></div>
+        <div id='todo-item-here'></div>
+        <textarea id='commands' cols='100' rows='10'></textarea>
+
+        <script src="concat/vendor.js"></script>
+        <script src="concat/browserified.js"></script>
+
+<script>
+var doCommand = function(name, args) {
+  var output = JSON.stringify([name, args]);
+  document.getElementById('commands').value += output + "\n";
+};
+var todo = new Todo({ title: 'test', completed: false });
+var item = new TodoItem({ todo: todo, doCommand: doCommand });
+React.renderComponent(item, document.getElementById('todo-item-here'));
+</script>
+
+    </body>
+</html>
