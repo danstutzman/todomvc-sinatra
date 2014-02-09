@@ -1,3 +1,4 @@
+React   = require('react')
 TodoApp = require('./TodoApp.coffee')
 
 app = TodoApp({ initialTodos: initialTodos })

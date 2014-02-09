@@ -1,4 +1,4 @@
-#React = require('react/addons')
+React = require('react')
 Todo = require('./Todo.coffee')
 
 ESCAPE_KEY = 27
@@ -54,10 +54,8 @@ TodoItem = React.createClass
     nextState.editText isnt @state.editText
 
   render: ->
-    li_attrs =
-      className: React.addons.classSet
-        completed: @props.todo.get('completed')
-        editing: @props.editing
+    li_class = (@props.todo.get('completed') ? 'completed ' : '') +
+               (@props.editing ? 'editing ' : '')
 
     label_attrs =
       ref: 'label',
@@ -78,7 +76,7 @@ TodoItem = React.createClass
       onChange: @handleChange
       onKeyDown: @handleKeyDown
 
-    React.DOM.li(li_attrs,
+    React.DOM.li({ className: li_class },
       React.DOM.div(className: 'view',
         React.DOM.input(check_box_attrs),
         React.DOM.label(label_attrs, @props.todo.get('title')),

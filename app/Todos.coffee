@@ -1,5 +1,5 @@
-#React    = require('react')
-#Backbone = require('backbone')
+React    = require('react')
+Backbone = require('backbone')
 Todo     = require('./Todo.coffee')
 
 Todos = Backbone.Collection.extend

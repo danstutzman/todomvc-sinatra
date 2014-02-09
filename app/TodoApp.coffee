@@ -1,4 +1,4 @@
-#React      = require('react')
+React      = require('react')
 Utils      = require('./Utils.coffee')
 TodoItem   = require('./TodoItem.coffee')
 TodoFooter = require('./TodoFooter.coffee')

@@ -1,3 +1,4 @@
+React    = require('react')
 Todo     = require('../app/Todo.coffee')
 Todos    = require('../app/Todos.coffee')
 TodoItem = require('../app/TodoItem.coffee')
@@ -26,7 +27,7 @@ describe 'TodoApp', ->
 
     { todos, nowShowing, editing } = app.state
     expect(todos.models).toEqual([])
-    expect(nowShowing).toEqual(ALL_TODOS)
+    expect(nowShowing).toEqual('all')
     expect(editing).toEqual(null)
 
   it 'can toggle all', ->
@@ -36,7 +37,7 @@ describe 'TodoApp', ->
 
     { todos, nowShowing, editing } = app.state
     expect(todos.models).toEqual([todo])
-    expect(nowShowing).toEqual(ALL_TODOS)
+    expect(nowShowing).toEqual('all')
     expect(editing).toEqual(null)
     expect(todos.models[0].get('completed')).toEqual(false)
 

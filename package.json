@@ -1,7 +1,12 @@
 {
   "name": "todomvc-sinatra",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "backbone": "~1.1.0",
+    "react": "~0.8.0",
+    "underscore": "~1.5.2",
+    "jquery": "~2.1.0"
+  },
   "devDependencies": {
     "karma": "~0.10.9",
     "karma-chrome-launcher": "~0.1.2",
@@ -18,9 +23,17 @@
     "bower": "~1.2.8",
     "clean-css": "~2.0.0",
     "uglifyify": "~1.2.0",
-    "exorcist": "~0.1.5"
+    "exorcist": "~0.1.5",
+    "coffee-script": "~1.7.1",
+    "jsdom": "~0.10.1"
   },
   "engines": {
     "node": ">=0.8.0"
+  },
+  "browser": {
+    "backbone": "./app/shims/backbone.js",
+    "jquery": "./app/shims/jquery.js",
+    "underscore": "./app/shims/underscore.js",
+    "react": "./app/shims/react.js"
   }
 }
