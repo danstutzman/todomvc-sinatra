@@ -1,42 +1,53 @@
-Utils = require('./Utils.coffee')
+type = React.PropTypes
 
 TodoFooter = React.createClass
+
+  propTypes:
+    count:          type.number.isRequired
+    completedCount: type.number.isRequired
+    nowShowing:     type.string.isRequired
+    doCommand:      type.func.isRequired
+
   handleClearCompleted: ->
     @props.doCommand 'delete_completed_todos'
 
   render: ->
-    activeTodoWord = Utils.pluralize(@props.count, 'item')
 
-    clear_button = null
-    if @props.completedCount > 0
-      attrs = { id: "clear-completed", onClick: @handleClearCompleted }
-      clear_button = React.DOM.button(attrs,
-        '', 'Clear completed (', @props.completedCount, ')', ''
-      )
+    { a, button, footer, li, span, strong, ul } = React.DOM
 
-    show = { ALL_TODOS: '', ACTIVE_TODOS: '', COMPLETED_TODOS: '' }
-    show[@props.nowShowing] = 'selected'
+    selectedIfShowing = (option) =>
+      if @props.nowShowing == option then 'selected'
 
-    React.DOM.footer(id: 'footer',
-      React.DOM.span(id: 'todo-count',
-        React.DOM.strong(null, @props.count), ' ',
-        activeTodoWord, ' ', 'left', ''
-      ),
-      React.DOM.ul(id: 'filters',
-        React.DOM.li(null,
-          React.DOM.a(href: '#/', className: show[ALL_TODOS], "All")
-        ), ' ',
-        React.DOM.li(null,
-          React.DOM.a(href: '#/active', className: show[ACTIVE_TODOS], 'Active')
-        ), ' ',
-        React.DOM.li(null,
-          React.DOM.a(
-            { href: '#/completed', className: show[COMPLETED_TODOS] },
+    footer
+      id: 'footer'
+      span
+        id: 'todo-count'
+        strong {},
+          @props.count
+        " #{if @props.count == 1 then 'item' else 'items'} left"
+      ul
+        id: 'filters'
+        li {},
+          a
+            href: '#/'
+            className: selectedIfShowing(ALL_TODOS)
+            'All'
+        ' '
+        li {},
+          a
+            href: '#/active'
+            className: selectedIfShowing(ACTIVE_TODOS)
+            'Active'
+        ' '
+        li {},
+          a
+            href: '#/completed'
+            className: selectedIfShowing(COMPLETED_TODOS)
             'Completed'
-          )
-        )
-      ),
-      clear_button
-    )
+      if @props.completedCount > 0
+        button
+          id: 'clear-completed'
+          onClick: @handleClearCompleted
+          "Clear completed (#{@props.completedCount})"
 
 module.exports = TodoFooter

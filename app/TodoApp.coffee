@@ -1,4 +1,3 @@
-Utils      = require('./Utils.coffee')
 TodoItem   = require('./TodoItem.coffee')
 TodoFooter = require('./TodoFooter.coffee')
 Todo       = require('./Todo.coffee')
@@ -7,15 +6,16 @@ Todos      = require('./Todos.coffee')
 window.ALL_TODOS       = 'all'
 window.ACTIVE_TODOS    = 'active'
 window.COMPLETED_TODOS = 'completed'
-ENTER_KEY = 13
+ENTER_KEY              = 13
+type                   = React.PropTypes
 
 TodoApp = React.createClass
 
   displayName: 'TodoApp'
 
   propTypes:
-    todos:      React.PropTypes.instanceOf(Todos).isRequired
-    doCommand:  React.PropTypes.func.isRequired
+    todos:      type.instanceOf(Todos).isRequired
+    doCommand:  type.func.isRequired
 
   getInitialState: ->
     nowShowing: ALL_TODOS
@@ -35,72 +35,54 @@ TodoApp = React.createClass
       @props.doCommand 'create_todo', title: val
       @refs.newField.getDOMNode().value = ''
 
-  toggleAll: (event) ->
+  handleToggleAll: (event) ->
     @props.doCommand 'set_completed_on_all_todos',
       completed: event.target.checked
 
-  toggle: (todo) ->
-    @props.doCommand 'toggle_completed_on_todo', cid: todo.cid
-
-  destroy: (todo) ->
-    @props.doCommand 'delete_todo', cid: todo.cid
-
-  clearCompleted: ->
-    @props.doCommand 'delete_completed_todos'
-
   render: ->
-    shownTodos = @props.todos.filter (todo) =>
-      switch @state.nowShowing
-        when ACTIVE_TODOS
-          not todo.get('completed')
-        when COMPLETED_TODOS
-          todo.get('completed')
-        else
-          true
+    activeTodos = @props.todos.filter (todo) ->
+      not todo.get('completed')
 
-    todoItems = shownTodos.map (todo) =>
-      TodoItem
-        key: todo.cid
-        todo: todo
-        doCommand: @props.doCommand
+    completedTodos = @props.todos.filter (todo) ->
+      todo.get('completed')
 
-    counter = (accum, todo) ->
-      if todo.get('completed') then accum else accum + 1
-    activeTodoCount = @props.todos.reduce counter, 0
-    completedCount = @props.todos.length - activeTodoCount
+    passingTodos = switch @state.nowShowing
+      when ACTIVE_TODOS    then activeTodos
+      when COMPLETED_TODOS then completedTodos
+      else @props.todos
 
-    footer = null
-    if activeTodoCount or completedCount
-      footer = TodoFooter
-        count: activeTodoCount
-        completedCount: completedCount
-        nowShowing: @state.nowShowing
-        doCommand: @props.doCommand
+    { div, h1, input, section, ul } = React.DOM
 
-    main = null
-    if @props.todos.length
-      existing_input_attrs =
-        id: 'toggle-all'
-        type: 'checkbox'
-        onChange: @toggleAll
-        checked: activeTodoCount is 0
-      main = React.DOM.section(id: 'main',
-        React.DOM.input(existing_input_attrs),
-        React.DOM.ul(id: 'todo-list', todoItems)
-      )
-
-    new_input_attrs =
-      ref: 'newField'
-      id: 'new-todo'
-      placeholder: 'What needs to be done?'
-      onKeyDown: @handleNewTodoKeyDown
-    React.DOM.div(null,
-      React.DOM.div(id: 'header',
-        React.DOM.h1(null, 'todos'),
-        React.DOM.input(new_input_attrs)
-      ),
-      main,
-      footer
-    )
+    div {},
+      div
+        id: 'header',
+        h1 {},
+          'todos'
+        input
+          ref: 'newField'
+          id: 'new-todo'
+          placeholder: 'What needs to be done?'
+          onKeyDown: @handleNewTodoKeyDown
+      if passingTodos.length
+        section
+          id: 'main'
+          React.DOM.input
+            id: 'toggle-all'
+            type: 'checkbox'
+            onChange: @handleToggleAll
+            checked: activeTodos.length == 0
+          ul
+            id: 'todo-list'
+            passingTodos.map (todo) =>
+              TodoItem
+                key: todo.cid
+                todo: todo
+                doCommand: @props.doCommand
+      if activeTodos.length or completedTodos.length
+        TodoFooter
+          count: activeTodos.length
+          completedCount: completedTodos.length
+          nowShowing: @state.nowShowing
+          doCommand: @props.doCommand
 
 module.exports = TodoApp

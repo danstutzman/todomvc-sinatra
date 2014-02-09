@@ -1,12 +1,13 @@
 Todo = require('./Todo.coffee')
 
 ESCAPE_KEY = 27
-ENTER_KEY = 13
+ENTER_KEY  = 13
+type       = React.PropTypes
 
 TodoItem = React.createClass
   propTypes:
-    todo:      React.PropTypes.instanceOf(Todo).isRequired
-    doCommand: React.PropTypes.func.isRequired
+    todo:      type.instanceOf(Todo).isRequired
+    doCommand: type.func.isRequired
 
   getInitialState: ->
     isEditing: false
@@ -49,35 +50,30 @@ TodoItem = React.createClass
     @props.doCommand 'delete_todo', cid: @props.todo.cid
 
   render: ->
-    li_attrs =
-      className: React.addons.classSet
-        completed: @props.todo.get('completed')
-        editing: @state.isEditing
-
-    label_attrs =
-      onDoubleClick: @handleEdit
-
-    check_box_attrs =
-      className: 'toggle'
-      type: 'checkbox'
-      checked: @props.todo.get('completed')
-      onChange: @handleToggle
-
-    edit_box_attrs =
-      ref: 'editField'
-      className: 'edit'
-      value: @state.editText
-      onBlur: @handleSubmit
-      onChange: @handleChange
-      onKeyDown: @handleKeyDown
-
-    React.DOM.li(li_attrs,
-      React.DOM.div(className: 'view',
-        React.DOM.input(check_box_attrs),
-        React.DOM.label(label_attrs, @props.todo.get('title')),
-        React.DOM.button(className: 'destroy', onClick: @handleDestroy)
-      ),
-      React.DOM.input(edit_box_attrs)
-    )
+    { button, div, input, label, li } = React.DOM
+    li
+      className:
+        (@props.todo.get('completed') && 'completed ') +
+        (@state.isEditing             && 'editing ')
+      div
+        className: 'view'
+        input
+          className: 'toggle'
+          type: 'checkbox'
+          checked: @props.todo.get('completed')
+          onChange: @handleToggle
+        label
+          onDoubleClick: @handleEdit
+          @props.todo.get('title')
+        button
+          className: 'destroy'
+          onClick: @handleDestroy
+      input
+        ref: 'editField'
+        className: 'edit'
+        value: @state.editText
+        onBlur: @handleSubmit
+        onChange: @handleChange
+        onKeyDown: @handleKeyDown
 
 module.exports = TodoItem
