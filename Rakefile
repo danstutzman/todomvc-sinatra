@@ -130,7 +130,7 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
     --insert-global-vars ''
     -d
   ].join(' ')
-  sh command
+  begin; sh command; rescue => e; sh "rm -f #{task.name}"; raise; end
 end
 
 file 'app/concat/bg.png' =>
