@@ -135,11 +135,15 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
   mkdir_p 'app/concat'
   command = %W[
     node_modules/.bin/browserify
-    #{task.prerequisites.join(' ')}
     -t coffeeify
     --insert-global-vars ''
     -d
-  ].join(' ')
+    -r jquery
+    -r backbone
+    -r underscore
+    -r react
+  ]
+  command = (command + task.prerequisites.map { |path| ['-r', "./#{path}"] }.flatten).join(' ')
   create_with_sh command, task.name
 end
 
