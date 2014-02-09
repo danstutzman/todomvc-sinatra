@@ -1,0 +1,3 @@
+#!/bin/bash -x
+#rake spec SPEC='spec/sleep.rb'
+bundle exec ruby -S rspec spec/sleep.rb #./spec/TodoItem_handler_spec.rb ./spec/selenium_spec.rb
