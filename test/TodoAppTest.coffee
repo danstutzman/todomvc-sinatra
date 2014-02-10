@@ -1,6 +1,7 @@
 React       = require('react')
 TodoApp     = require('../app/TodoApp.coffee')
 CommandDoer = require('../app/CommandDoer.coffee')
+Todo        = require('../app/Todo.coffee')
 Todos       = require('../app/Todos.coffee')
 
 body   = window.document.getElementsByTagName('body')[0]
@@ -26,6 +27,7 @@ hit_enter_in = (node) ->
   node.dispatchEvent e
 
 describe 'TodoApp', ->
+
   setup = (initialTodos) =>
     todos = new Todos(initialTodos)
     doer = new CommandDoer(todos)
@@ -34,14 +36,18 @@ describe 'TodoApp', ->
     @div = render(app)
     { todos, app }
 
-  it 'starts empty but adds one when you type something in', ->
+  it 'can start empty', ->
     { todos, app } = setup([])
-
     expect($('#todo-list li').length).toEqual 0
 
+  it 'can start with one', ->
+    { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
+    expect($('#todo-list li').length).toEqual 1
+
+  it 'can add one', ->
+    { todos, app } = setup([])
     $('#new-todo').val('added')
     hit_enter_in $('#new-todo')[0]
-
     expect($('#todo-list li').length).toEqual 1
 
   afterEach =>
