@@ -26,13 +26,16 @@ hit_enter_in = (node) ->
   node.dispatchEvent e
 
 describe 'TodoApp', ->
-  it 'starts empty but adds one when you type something in', ->
-    initialTodos = []
+  setup = (initialTodos) =>
     todos = new Todos(initialTodos)
     doer = new CommandDoer(todos)
     app = TodoApp(todos: todos, doCommand: doer.doCommand)
     todos.on 'add destroy change', -> app.setProps todos: todos
-    div = render(app)
+    @div = render(app)
+    { todos, app }
+
+  it 'starts empty but adds one when you type something in', ->
+    { todos, app } = setup([])
 
     expect($('#todo-list li').length).toEqual 0
 
@@ -41,4 +44,5 @@ describe 'TodoApp', ->
 
     expect($('#todo-list li').length).toEqual 1
 
-    div.parentNode.removeChild(div)
+  afterEach =>
+    @div.parentNode.removeChild @div
