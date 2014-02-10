@@ -22,5 +22,11 @@
   },
   "engines": {
     "node": ">=0.8.0"
+  },
+  "browser": {
+    "react":      "./app/shims/react.js",
+    "backbone":   "./app/shims/backbone.js",
+    "underscore": "./app/shims/underscore.js",
+    "jquery":     "./app/shims/jquery.js"
   }
 }

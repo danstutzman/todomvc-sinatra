@@ -1,9 +1,7 @@
+React       = require('react')
 TodoApp     = require('../app/TodoApp.coffee')
 CommandDoer = require('../app/CommandDoer.coffee')
 Todos       = require('../app/Todos.coffee')
-
-# Workaround: require('react') causes firstChild errors
-React  = window.React
 
 body   = window.document.getElementsByTagName('body')[0]
 

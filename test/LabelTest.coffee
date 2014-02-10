@@ -1,7 +1,5 @@
+React  = require('react')
 Label  = require('../app/Label.coffee')
-
-# Workaround: require('react') causes firstChild errors
-React  = window.React
 
 body   = window.document.getElementsByTagName('body')[0]
 
