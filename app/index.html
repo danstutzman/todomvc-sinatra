@@ -31,11 +31,10 @@
           var Todos   = require('./app/Todos.coffee');
           var CommandDoer = require('./app/CommandDoer.coffee');
 
-          var doer = new CommandDoer();
           var todos = new Todos(initialTodos);
+          var doer = new CommandDoer(todos);
           var app = TodoApp({ todos: todos, doCommand: doer.doCommand });
-          doer.todos = todos;
-          doer.app = app;
+          todos.on('add destroy change', function() { app.setProps(todos); });
           React.renderComponent(app, document.getElementById('todoapp'));
         </script>
     </body>

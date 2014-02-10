@@ -30,11 +30,10 @@ hit_enter_in = (node) ->
 describe 'TodoApp', ->
   it 'starts empty but adds one when you type something in', ->
     initialTodos = []
-    doer = new CommandDoer()
     todos = new Todos(initialTodos)
+    doer = new CommandDoer(todos)
     app = TodoApp(todos: todos, doCommand: doer.doCommand)
-    doer.app = app
-    doer.todos = todos
+    todos.on 'add destroy change', -> app.setProps todos: todos
     div = render(app)
 
     expect($('#todo-list li').length).toEqual 0
