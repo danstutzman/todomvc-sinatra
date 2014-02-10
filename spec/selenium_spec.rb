@@ -1,10 +1,14 @@
 require 'helper'
 require 'open-uri'
+require 'pry'
+require 'database_cleaner'
 
 BROWSER_URL = ENV['BROWSER_URL'] or raise "No ENV[BROWSER_URL]"
 
 describe 'TodoMVC', type: :feature, js: true do
   before(:each) do
+    DatabaseCleaner.strategy = :truncation
+    DatabaseCleaner.clean
     visit BROWSER_URL
   end
 
@@ -19,6 +23,7 @@ describe 'TodoMVC', type: :feature, js: true do
   it 'removes a todo when you hover over it and click X' do
     find('#new-todo').set("added3\n")
     all('#todo-list li')[0].find('label').hover
+    # IE8: execute_script "$('#todo-list li .destroy').show()"
     all('#todo-list li')[0].find('button.destroy').click
     all('#todo-list li').size.should == 0
   end
@@ -46,6 +51,7 @@ describe 'TodoMVC', type: :feature, js: true do
     all('#todo-list li')[0].find('input.toggle').click
     all('#todo-list li.completed').size.should == 1
     find('#toggle-all').click
+    # IE8: execute_script("$('#toggle-all').click()")
     all('#todo-list li.completed').size.should == 2
   end
   it 'marks all todos uncompleted when you click toggle-all if they\'re all completed' do
@@ -53,6 +59,7 @@ describe 'TodoMVC', type: :feature, js: true do
     all('#todo-list li')[0].find('input.toggle').click
     all('#todo-list li.completed').size.should == 1
     find('#toggle-all').click
+    # IE8: execute_script("$('#toggle-all').click()")
     all('#todo-list li.completed').size.should == 0
   end
 

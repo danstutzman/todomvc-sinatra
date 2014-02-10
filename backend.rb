@@ -24,9 +24,13 @@ module TodomvcBackend
           secure:       production?,
           expire_after: 60 * 60 * 24 * 365,
           secret:       ENV['SESSION_SECRET']
+      set static: true
+      # gotta set root or it'll be set wrong during automated tests
+      set root: File.dirname(__FILE__)
     end
 
     use Rack::Deflater
+    use Rack::Logger
 
     get '/' do
       `rake app/concat`

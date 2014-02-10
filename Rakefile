@@ -7,11 +7,6 @@ require 'open-uri'
 require 'dotenv/tasks'
 require 'logger'
 
-RACK_ENV = ENV['RACK_ENV'] || 'development'
-Dotenv.load! ".env.#{RACK_ENV}"
-
-$child_pid = nil
-
 def create_with_sh(command, path)
   begin
     sh "#{command} > #{path}"
@@ -29,8 +24,26 @@ end
 
 task :default => :spec
 
-def start_selenium_server
-  command = "java -jar spec/selenium-server-standalone-2.39.0.jar -role hub"
+task :dotenv_default_dev do
+  rack_env = ENV['RACK_ENV'] || 'development'
+  Dotenv.load! ".env.#{rack_env}"
+end
+
+task :dotenv_default_test do
+  rack_env = ENV['RACK_ENV'] || 'test'
+  Dotenv.load! ".env.#{rack_env}"
+end
+
+task :env_for_sleep do
+  ENV['SPEC'] = 'spec/sleep.rb'
+  ENV['RACK_ENV'] = 'test' # so database is correct
+end
+
+task :spec_sleep => [:dotenv_default_test, :env_for_sleep,
+                     :'db:reset_test_db', :spec]
+
+task :start_selenium_hub_server do
+  command = "java -jar spec/selenium-server-standalone-2.39.0.jar -role hub >>selenium-server.log 2>&1"
   puts command
   pid = spawn(command, out: :close) # suppress stdout
   puts 'Waiting for selenium server to start'
@@ -47,43 +60,36 @@ def start_selenium_server
     print '.'
     sleep 1
   end
-  pid
 end
 
-task :stop_selenium_server do
-  Process.kill 'INT', $child_pid
-  Process.wait
-end
-
-task :start_selenium_hub_server do
+task :env_for_selenium_remote do
   ENV['REMOTE']            = 'true'
   ENV['SELENIUM_HOST']     = 'localhost'
   ENV['SELENIUM_PORT']     = '4444'
   ENV['SELENIUM_BROWSER']  = 'internet explorer'
   ENV['SELENIUM_PLATFORM'] = 'XP'
   ENV['SELENIUM_VERSION']  = ''
-  ENV['BROWSER_URL']       = 'http://10.0.2.2:3000/index.html'
-
-  $child_pid = start_selenium_server
-  puts 'Wait for VirtualBox grid node to find it...'
-  sleep 10
+  ENV['BROWSER_URL']       = 'http://10.0.2.2:3000/'
+  ENV['RACK_ENV'] = 'test' # so database is correct
 end
 
-task :spec_vm => [:start_selenium_hub_server, :spec, :stop_selenium_server]
+task :spec_vm => [:dotenv_default_test, :env_for_selenium_remote,
+                  :'db:reset_test_db', :spec]
 
-task :set_selenium_env_sauce do
+task :env_for_selenium_sauce do
   ENV['REMOTE']            = 'true'
   ENV['SELENIUM_HOST']     = 'localhost'
   ENV['SELENIUM_PORT']     = '4445'
   ENV['SELENIUM_BROWSER']  = 'internet explorer'
   ENV['SELENIUM_PLATFORM'] = 'Windows XP'
   ENV['SELENIUM_VERSION']  = '8'
-  ENV['BROWSER_URL']       = 'http://localhost:3000/index.html'
+  ENV['BROWSER_URL']       = 'http://localhost:3000/'
   ENV['SAUCE_USER_NAME'] or raise "No ENV[SAUCE_USER_NAME]"
   ENV['SAUCE_API_KEY']   or raise "No ENV[SAUCE_API_KEY]"
+  ENV['RACK_ENV'] = 'test' # so database is correct
 end
 
-task :spec_sauce => [:set_selenium_env_sauce, :spec]
+task :spec_sauce => [:env_for_selenium_sauce, :spec]
 
 task :karma do
   puts system('node_modules/.bin/karma start')
@@ -302,5 +308,11 @@ namespace :db do
   task :dump => :sequel do
     sh "sequel -d #{$db.url} > db/schema.rb"
     sh "pg_dump --schema-only #{$db.url} > db/schema.sql"
+  end
+
+  task :reset_test_db => :sequel do
+    require 'database_cleaner'
+    DatabaseCleaner.strategy = :truncation
+    DatabaseCleaner.clean
   end
 end

@@ -19,6 +19,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
     daemons (1.1.9)
+    database_cleaner (1.2.0)
     diff-lcs (1.2.5)
     digital_ocean (1.0.1)
       faraday (~> 0.8.7)
@@ -104,6 +105,7 @@ PLATFORMS
 DEPENDENCIES
   bundler
   capybara!
+  database_cleaner
   dotenv
   pg
   pry
