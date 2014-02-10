@@ -8,7 +8,7 @@ class CommandDoer
         todo.destroy()
         @app.setProps todos: @todos
       when 'create_todo'
-        todos.create title: args['title'], completed: false
+        @todos.create title: args['title'], completed: false
         @app.setProps todos: @todos
       when 'set_completed_on_all_todos'
         @todos.each (todo) ->
