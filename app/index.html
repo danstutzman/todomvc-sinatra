@@ -14,10 +14,29 @@
     </head>
     <body>
         <section id="todoapp"></section>
-        <footer id="info"></footer>
+        <footer id="info">
+          <div>
+            <p>Double-click to edit a todo</p>
+            <p>Created by
+              <a href='http://github.com/petehunt/'>petehunt</a></p>
+            <p>Part of <a href='http://todomvc.com'>TodoMVC</a>
+          </div>
+        </footer>
 
         <script src="concat/vendor.js"></script>
         <script>var initialTodos = []; /* server will fill in */</script>
         <script src="concat/browserified.js"></script>
+        <script>
+          var TodoApp = require('./app/TodoApp.coffee');
+          var Todos   = require('./app/Todos.coffee');
+          var CommandDoer = require('./app/CommandDoer.coffee');
+
+          var doer = new CommandDoer();
+          var todos = new Todos(initialTodos);
+          var app = TodoApp({ todos: todos, doCommand: doer.doCommand });
+          doer.todos = todos;
+          doer.app = app;
+          React.renderComponent(app, document.getElementById('todoapp'));
+        </script>
     </body>
 </html>

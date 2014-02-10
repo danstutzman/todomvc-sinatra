@@ -137,12 +137,16 @@ end
 
 file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
   mkdir_p 'app/concat'
+  dash_r_paths = task.prerequisites.map { |path|
+    ['-r', "./#{path}"]
+  }.flatten.join(' ')
   command = %W[
     node_modules/.bin/browserify
-    #{task.prerequisites.join(' ')}
     -t coffeeify
     --insert-global-vars ''
     -d
+    -r jquery -r backbone -r underscore -r react
+    #{dash_r_paths}
   ].join(' ')
   create_with_sh command, task.name
 end
@@ -160,18 +164,27 @@ file 'app/concat' => %w[
   app/concat/bg.png
 ]
 
-file 'test/concat/browserified.js' => (
-  Dir.glob(['app/*.coffee', 'test/*.coffee']) - ['app/main.coffee']) do |task|
-  mkdir_p 'test/concat'
+file 'test/concat/browserified.js' =>
+    Dir.glob(['app/*.coffee', 'test/*.coffee']) do |task|
+  mkdir_p 'app/concat'
+  dash_r_paths = task.prerequisites.map { |path|
+    ['-r', "./#{path}"] if path.start_with?('app/')
+  }.compact.flatten.join(' ')
+  non_dash_r_paths = task.prerequisites.select { |path|
+    path.start_with?('test/')
+  }.join(' ')
   command = %W[
     node_modules/.bin/browserify
-    #{task.prerequisites.join(' ')}
     -t coffeeify
     --insert-global-vars ''
     -d
+    -r jquery -r backbone -r underscore -r react
+    #{dash_r_paths}
+    #{non_dash_r_paths}
   ].join(' ')
   create_with_sh command, task.name
 end
+
 
 file 'test/concat/vendor.js' => %w[
   app/bower_components/todomvc-common/base.js
@@ -235,14 +248,18 @@ file 'dist/concat/vendor.js' => %w[
 end
 
 file 'dist/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
-  mkdir_p 'app/concat'
+  mkdir_p 'dist/concat'
+  dash_r_paths = task.prerequisites.map { |path|
+    ['-r', "./#{path}"]
+  }.flatten.join(' ')
   command = %W[
     node_modules/.bin/browserify
-      #{task.prerequisites.join(' ')}
       -t coffeeify
       -t uglifyify
       --insert-global-vars ''
       -d
+      -r jquery -r backbone -r underscore -r react
+      #{dash_r_paths}
   | node
       node_modules/exorcist/bin/exorcist.js
       dist/concat/browserified.js.map
