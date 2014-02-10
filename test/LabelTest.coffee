@@ -1,5 +1,18 @@
-render = React.addons.ReactTestUtils.renderIntoDocument
-click  = React.addons.ReactTestUtils.Simulate.click
+Label  = require('../app/Label.coffee')
+
+# Workaround: require('react') causes firstChild errors
+React  = window.React
+
+body   = window.document.getElementsByTagName('body')[0]
+
+render = (instance) ->
+  div = document.createElement('div')
+  body.appendChild(div)
+  React.renderComponent(instance, div)
+
+click_on = (node) ->
+  node = node.getDOMNode() if node.getDOMNode
+  node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
 describe 'Label Test', ->
   # if IE8, avoid "HTML Parsing Error: Unable to modify the parent container
@@ -22,5 +35,5 @@ describe 'Label Test', ->
   it 'Click', ->
     label = Label(null, 'Some Text We Need for Test')
     render(label)
-    click(label.refs.p)
+    click_on(label.refs.p)
     expect(label.refs.p.props.children).toEqual('Text After Click')
