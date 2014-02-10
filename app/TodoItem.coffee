@@ -53,8 +53,8 @@ TodoItem = React.createClass
     { button, div, input, label, li } = React.DOM
     li
       className:
-        (@props.todo.get('completed') && 'completed ') +
-        (@state.isEditing             && 'editing ')
+        (@props.todo.get('completed') && 'completed ' || '') +
+        (@state.isEditing             && 'editing '   || '')
       div
         className: 'view'
         input
