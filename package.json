@@ -10,6 +10,7 @@
     "karma-coffee-preprocessor": "~0.1.2",
     "karma-osx-reporter": "0.0.4",
     "karma-browserify": "0.0.6",
+    "karma-jasmine": "r-park/karma-jasmine#37089bee46f047798003a34072229ba5f70260ef",
     "coffeeify": "~0.5.2",
     "karma-ievms": "0.0.4",
     "karma-opera-launcher": "~0.1.0",

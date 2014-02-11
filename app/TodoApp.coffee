@@ -26,7 +26,7 @@ TodoApp = React.createClass
       '/active':    @setState.bind(this, nowShowing: ACTIVE_TODOS)
       '/completed': @setState.bind(this, nowShowing: COMPLETED_TODOS)
     router.init()
-    @refs.newField.getDOMNode().focus()
+    window.setTimeout (=> @refs.newField.getDOMNode().focus()), 0
 
   handleNewTodoKeyDown: (event) ->
     return if event.keyCode != ENTER_KEY

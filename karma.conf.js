@@ -17,21 +17,26 @@ module.exports = function(config) {
         'app/bower_components/es5-shim/es5-shim.js',
         'app/bower_components/es5-shim/es5-sham.js',
         'app/bower_components/console-polyfill/index.js',
-        'test/react-with-test-utils.js',
+        'app/ie8-set-selection-range.js',
+        'app/bower_components/underscore/underscore.js',
+        'app/bower_components/jquery/jquery.js',
+        'app/bower_components/backbone/backbone.js',
+        'app/bower_components/react/react.js',
+        'app/bower_components/director/build/director.js',
         'app/*.coffee',
-        'test/**/*.coffee'
+        'test/*.coffee'
     ],
 
 
     // list of files to exclude
     exclude: [
-        'app/main.coffee'
     ],
 
 
     preprocessors: {
         'app/*.coffee': ['browserify'],
-        'test/**/*.coffee': ['browserify'],
+        'app/shims/*.js': ['browserify'],
+        'test/*.coffee': ['browserify'],
     },
 
 
@@ -40,7 +45,21 @@ module.exports = function(config) {
         transform: ['coffeeify'],
         watch: true,   // Watches dependencies only (Karma watches the tests)
         debug: true,   // Adds source maps to bundle
-        noParse: ['test/react-with-test-utils.js'] // Don't parse some modules
+        noParse: [
+            'app/bower_components/es5-shim/es5-shim.js',
+            'app/bower_components/es5-shim/es5-sham.js',
+            'app/bower_components/console-polyfill/index.js',
+            'app/ie8-set-selection-range.js',
+            'app/bower_components/underscore/underscore.js',
+            'app/bower_components/jquery/jquery.js',
+            'app/bower_components/backbone/backbone.js',
+            'app/bower_components/react/react.js',
+            'app/bower_components/director/build/director.js',
+            'underscore',
+            'backbone',
+            'react',
+            'jquery'
+        ] // Don't parse some modules
     },
 
     // test results reporter to use
