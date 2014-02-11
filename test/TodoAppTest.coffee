@@ -22,16 +22,11 @@ dblclick_on = (node) ->
 
 keydown_in = (node, keyCode, string) ->
   node = node.getDOMNode() if node.getDOMNode
-  e = document.createEvent('KeyboardEvent')
-  if e.initKeyboardEvent # Chrome
-    e.initKeyboardEvent("keydown", true, true, null, false, false,
-                        false, false, keyCode, string.charCodeAt(0))
-    # Hack: see http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/10520017#10520017
-    Object.defineProperty e, 'keyCode', { get: (-> keyCode) }
-    Object.defineProperty e, 'which',   { get: (-> string.charCodeAt(0)) }
-  else
-    e.initKeyEvent("keydown", true, true, null, false, false,
-                   false, false, keyCode, string.charCodeAt(0))
+  e = document.createEvent 'Events'
+  e.initEvent 'keydown', true, true
+  e.keyCode = keyCode
+  e.which = keyCode
+  e.charCode = string.charCodeAt(0)
   node.dispatchEvent e
 
 ENTER_KEY_CODE = 13
