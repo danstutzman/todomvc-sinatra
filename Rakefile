@@ -164,6 +164,14 @@ file 'app/concat' => %w[
   app/concat/bg.png
 ]
 
+# How to write new patch files (to fix <100% test coverage):
+# - Remove line that does rm -rf app-compiled
+# - Rerun task to generate app-compiled
+# - cp app-compiled/CommandDoer.js app-compiled/CommandDoer-patched.js
+# - diff -u app-compiled/CommandDoer.js app-compiled/CommandDoer-patched.js
+#     > test/CommandDoer.patch
+# - Test with patch app-compiled/CommandDoer.js test/CommandDoer.patch
+# - Add patch below
 file 'test/concat/browserified-coverage.js' =>
     Dir.glob(['app/*.coffee', 'test/*.coffee']) do |task|
   mkdir_p 'app/concat'
@@ -187,6 +195,7 @@ file 'test/concat/browserified-coverage.js' =>
       app-compiled/shims
   ; rm app-compiled/*.coffee
   ; perl -pi -w -e 's/\.coffee/\.js/g;' app-compiled/*.js
+  ; patch app-compiled/CommandDoer.js test/CommandDoer.patch
   ; node_modules/.bin/istanbul
       instrument
       app-compiled
