@@ -13,7 +13,25 @@
         <script src="bower_components/jasmine/lib/jasmine-core/boot.js">
         </script>
 
+        <script>
+          var reporter = {
+            jasmineDone: function() {
+              $.post(
+                'http://localhost:3030',
+                JSON.stringify(__coverage__),
+                function() {
+                  window.open("file:///Users/daniel/dev/todomvc-sinatra/lcov-report/concat/browserified.js.html");
+                }
+              ).fail(function() {
+                alert("Couldn't contact cov_server.js on port 3030");
+              })
+            }
+          };
+          jasmine.getEnv().addReporter(reporter);
+        </script>
+
         <script src="concat/vendor.js"></script>
-        <script src="concat/browserified.js"></script>
+        <script src="concat/browserified-coverage.js"></script>
+
     </body>
 </html>

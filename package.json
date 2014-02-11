@@ -18,15 +18,16 @@
     "bower": "~1.2.8",
     "clean-css": "~2.0.0",
     "uglifyify": "~1.2.0",
-    "exorcist": "~0.1.5"
+    "exorcist": "~0.1.5",
+    "istanbul": "~0.2.4"
   },
   "engines": {
     "node": ">=0.8.0"
   },
   "browser": {
-    "react":      "./app/shims/react.js",
-    "backbone":   "./app/shims/backbone.js",
+    "react": "./app/shims/react.js",
+    "backbone": "./app/shims/backbone.js",
     "underscore": "./app/shims/underscore.js",
-    "jquery":     "./app/shims/jquery.js"
+    "jquery": "./app/shims/jquery.js"
   }
 }

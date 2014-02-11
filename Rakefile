@@ -160,11 +160,11 @@ file 'app/concat' => %w[
   app/concat/all.css
   app/concat/ie8.js
   app/concat/vendor.js
-  app/concat/browserified.js
+  app/concat/browserified-coverage.js
   app/concat/bg.png
 ]
 
-file 'test/concat/browserified.js' =>
+file 'test/concat/browserified-coverage.js' =>
     Dir.glob(['app/*.coffee', 'test/*.coffee']) do |task|
   mkdir_p 'app/concat'
   dash_r_paths = task.prerequisites.map { |path|
@@ -181,10 +181,13 @@ file 'test/concat/browserified.js' =>
     -r jquery -r backbone -r underscore -r react
     #{dash_r_paths}
     #{non_dash_r_paths}
+    > test/concat/browserified.js
+  ; node_modules/.bin/istanbul
+    instrument
+    test/concat/browserified.js
   ].join(' ')
   create_with_sh command, task.name
 end
-
 
 file 'test/concat/vendor.js' => %w[
   app/bower_components/todomvc-common/base.js
@@ -203,7 +206,7 @@ end
 file 'test/concat' => %w[
   app/concat/ie8.js
   test/concat/vendor.js
-  test/concat/browserified.js
+  test/concat/browserified-coverage.js
 ]
 
 file 'dist/concat/all.css' => ['app/concat/all.css'] do |task|
