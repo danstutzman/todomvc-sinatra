@@ -17,14 +17,15 @@
         <script>
           var reporter = {
             jasmineDone: function() {
-              $.post(
-                'http://localhost:3030',
-                JSON.stringify(__coverage__),
-                function() {
-                  window.open("file:///Users/daniel/dev/todomvc-sinatra/lcov-report/app-compiled/index.html");
+              var hostname = window.location.hostname || 'localhost';
+              var url = 'http://' + hostname + ':3030';
+              $.support.cors = true; // for IE8
+              $.post(url, JSON.stringify(__coverage__), function() {
+                  window.open(window.location.href.replace("test/index.html", "lcov-report/app-compiled/index.html"));
                 }
-              ).fail(function() {
-                alert("Couldn't contact cov_server.js on port 3030");
+              ).fail(function(error) {
+                alert("Couldn't contact cov_server.js at " + url + ": " +
+                  JSON.stringify(error));
               })
             }
           };
