@@ -81,6 +81,7 @@ TodoApp = React.createClass
                 doCommand: @props.doCommand
       if activeTodos.length or completedTodos.length
         TodoFooter
+          ref: 'footer'
           count: activeTodos.length
           completedCount: completedTodos.length
           nowShowing: @state.nowShowing

@@ -29,24 +29,28 @@ TodoFooter = React.createClass
         id: 'filters'
         li {},
           a
+            ref: 'all'
             href: '#/'
             className: selectedIfShowing(ALL_TODOS)
             'All'
         ' '
         li {},
           a
+            ref: 'active'
             href: '#/active'
             className: selectedIfShowing(ACTIVE_TODOS)
             'Active'
         ' '
         li {},
           a
+            ref: 'completed'
             href: '#/completed'
             className: selectedIfShowing(COMPLETED_TODOS)
             'Completed'
       if @props.completedCount > 0
         button
           id: 'clear-completed'
+          ref: 'clear_completed'
           onClick: @handleClearCompleted
           "Clear completed (#{@props.completedCount})"
 

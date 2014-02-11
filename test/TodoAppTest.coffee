@@ -155,5 +155,29 @@ describe 'TodoApp', ->
     click_on app.refs.toggle_all
     expect(query(app, 'section li.completed').length).toEqual 0
 
-  afterEach =>
-    @div.parentNode.removeChild @div
+  it 'can delete all completed todos', ->
+    todo1 = new Todo(title: 'test1', completed: true)
+    todo2 = new Todo(title: 'test2', completed: false)
+    { todos, app } = setup([todo1, todo2])
+    click_on app.refs.footer.refs.clear_completed
+    expect(query(app, 'section li').length).toEqual 1
+
+  it 'can filter for only active todos', (done) ->
+     todo1 = new Todo(title: 'test1', completed: true)
+     todo2 = new Todo(title: 'test2', completed: false)
+     { todos, app } = setup([todo1, todo2])
+     listener1 = ->
+       expect(query(app, 'section li').length).toEqual 1
+       window.removeEventListener 'hashchange', listener1
+       window.addEventListener 'hashchange', listener2
+       window.location.hash = ''
+     listener2 = ->
+       window.removeEventListener 'hashchange', listener2
+       done()
+     window.addEventListener 'hashchange', listener1
+     link = app.refs.footer.refs.active.getDOMNode().href
+     link = link.substring(link.indexOf('#') + 1)
+     window.location.hash = link
+
+   afterEach =>
+     @div.parentNode.removeChild @div
