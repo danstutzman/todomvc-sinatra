@@ -52,6 +52,24 @@ query1 = (node, selector) ->
   else
     results[0]
 
+hash_from_link = (a_element) ->
+  a_element = a_element.getDOMNode() if a_element.getDOMNode
+  link = a_element.href
+  link = link.substring(link.indexOf('#') + 1) # just the part after #
+
+go_to_hash = (hash, done, expectations) ->
+  listener1 = ->
+    expectations()
+    # put things back
+    window.removeEventListener 'hashchange', listener1
+    window.addEventListener 'hashchange', listener2
+    window.location.hash = ''
+  listener2 = ->
+    window.removeEventListener 'hashchange', listener2
+    done()
+  window.addEventListener 'hashchange', listener1
+  window.location.hash = hash
+
 describe 'TodoApp', ->
 
   setup = (initialTodos) =>
@@ -76,7 +94,7 @@ describe 'TodoApp', ->
     keydown_in app.refs.newField, ENTER_KEY_CODE, "\n"
     expect(query(app, 'section li').length).toEqual 1
 
-  it 'ignores non-special keydowns (just for coverage)', ->
+  it 'ignores non-special keydowns in new-todo (just for coverage)', ->
     { todos, app } = setup([])
     keydown_in app.refs.newField, "a".charCodeAt(0), "a"
 
@@ -124,6 +142,11 @@ describe 'TodoApp', ->
     liClasses = query1(app, 'section li').className.split(' ')
     expect(liClasses).not.toContain('editing')
 
+  it 'ignores non-special keydowns when editing (just for coverage)', ->
+    { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
+    dblclick_on query1(app, 'section li label')
+    keydown_in query1(app, 'section li input.edit'), "a".charCodeAt(0), "a"
+
   it 'can mark a todo completed', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
     click_on query1(app, 'section li input[type=checkbox')
@@ -162,22 +185,32 @@ describe 'TodoApp', ->
     click_on app.refs.footer.refs.clear_completed
     expect(query(app, 'section li').length).toEqual 1
 
-  it 'can filter for only active todos', (done) ->
+  it 'can filter for all todos', (done) ->
      todo1 = new Todo(title: 'test1', completed: true)
      todo2 = new Todo(title: 'test2', completed: false)
-     { todos, app } = setup([todo1, todo2])
-     listener1 = ->
+     todo3 = new Todo(title: 'test3', completed: false)
+     { todos, app } = setup([todo1, todo2, todo3])
+     hash = hash_from_link(app.refs.footer.refs.all)
+     go_to_hash hash, done, ->
+       expect(query(app, 'section li').length).toEqual 3
+
+  it 'can filter for only non-completed todos', (done) ->
+     todo1 = new Todo(title: 'test1', completed: true)
+     todo2 = new Todo(title: 'test2', completed: false)
+     todo3 = new Todo(title: 'test3', completed: false)
+     { todos, app } = setup([todo1, todo2, todo3])
+     hash = hash_from_link(app.refs.footer.refs.active)
+     go_to_hash hash, done, ->
+       expect(query(app, 'section li').length).toEqual 2
+
+  it 'can filter for only completed todos', (done) ->
+     todo1 = new Todo(title: 'test1', completed: true)
+     todo2 = new Todo(title: 'test2', completed: false)
+     todo3 = new Todo(title: 'test3', completed: false)
+     { todos, app } = setup([todo1, todo2, todo3])
+     hash = hash_from_link(app.refs.footer.refs.completed)
+     go_to_hash hash, done, ->
        expect(query(app, 'section li').length).toEqual 1
-       window.removeEventListener 'hashchange', listener1
-       window.addEventListener 'hashchange', listener2
-       window.location.hash = ''
-     listener2 = ->
-       window.removeEventListener 'hashchange', listener2
-       done()
-     window.addEventListener 'hashchange', listener1
-     link = app.refs.footer.refs.active.getDOMNode().href
-     link = link.substring(link.indexOf('#') + 1)
-     window.location.hash = link
 
    afterEach =>
      @div.parentNode.removeChild @div
