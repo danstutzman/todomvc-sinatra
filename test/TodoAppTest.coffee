@@ -14,28 +14,54 @@ render = (instance) ->
 
 click_on = (node) ->
   node = node.getDOMNode() if node.getDOMNode
-  node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  if node.fireEvent # if IE8
+    if node.nodeName == 'INPUT' && node.type == 'checkbox'
+      node.checked = not node.checked
+    e = document.createEventObject()
+    node.fireEvent 'onclick', e
+  else
+    node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
 dblclick_on = (node) ->
   node = node.getDOMNode() if node.getDOMNode
-  node.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
+  if node.fireEvent # if IE8
+    e = document.createEventObject()
+    node.fireEvent 'ondblclick', e
+  else
+    node.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
 
 keydown_in = (node, keyCode, string) ->
   node = node.getDOMNode() if node.getDOMNode
-  e = document.createEvent 'Events'
-  e.initEvent 'keydown', true, true
-  e.keyCode = keyCode
-  e.which = keyCode
-  e.charCode = string.charCodeAt(0)
-  node.dispatchEvent e
+  if node.fireEvent # if IE8
+    e = document.createEventObject()
+    e.bubbles = true
+    e.cancelable = true
+    e.view = window
+    e.keyCode = keyCode
+    e.which = keyCode
+    e.charCode = string.charCodeAt(0)
+    node.fireEvent 'onkeydown', e
+  else
+    e = document.createEvent 'Events'
+    e.initEvent 'keydown', true, true
+    e.keyCode = keyCode
+    e.which = keyCode
+    e.charCode = string.charCodeAt(0)
+    node.dispatchEvent e
 
 ENTER_KEY_CODE = 13
 ESCAPE_KEY_CODE = 27
 
 trigger_change_in = (node) ->
   node = node.getDOMNode() if node.getDOMNode
-  e = new Event('input', { bubbles: true })
-  node.dispatchEvent(e)
+  if node.fireEvent # if IE8 (which React does funny change listening for)
+    oldvalue = node.value         # save old value of value
+    node.value = 'something else' # change it so React updates its cache
+    delete node.value             # remove React's handler
+    node.value = oldvalue         # change it back so React fires change
+  else
+    e = new Event('input', { bubbles: true })
+    node.dispatchEvent e
 
 query = (node, selector) ->
   node = node.getDOMNode() if node.getDOMNode
@@ -57,20 +83,32 @@ hash_from_link = (a_element) ->
   link = link.substring(link.indexOf('#') + 1) # just the part after #
 
 go_to_hash = (hash, done, expectations) ->
-  listener1 = ->
-    expectations()
-    # put things back
-    window.removeEventListener 'hashchange', listener1
-    window.addEventListener 'hashchange', listener2
-    window.location.hash = ''
-  listener2 = ->
-    window.removeEventListener 'hashchange', listener2
-    done()
-  window.addEventListener 'hashchange', listener1
-  window.location.hash = hash
+  if window.attachEvent # if IE8
+    listener1 = ->
+      expectations()
+      # put things back
+      window.detachEvent 'onhashchange', listener1
+      window.attachEvent 'onhashchange', listener2
+      window.location.hash = ''
+    listener2 = ->
+      window.detachEvent 'onhashchange', listener2
+      done()
+    window.attachEvent 'onhashchange', listener1
+    window.location.hash = hash
+  else
+    listener1 = ->
+      expectations()
+      # put things back
+      window.removeEventListener 'hashchange', listener1
+      window.addEventListener 'hashchange', listener2
+      window.location.hash = ''
+    listener2 = ->
+      window.removeEventListener 'hashchange', listener2
+      done()
+    window.addEventListener 'hashchange', listener1
+    window.location.hash = hash
 
 describe 'TodoApp', ->
-
   setup = (initialTodos) =>
     todos = new Todos(initialTodos)
     doer = new CommandDoer(todos)
