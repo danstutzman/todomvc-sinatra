@@ -168,25 +168,47 @@ file 'test/concat/browserified-coverage.js' =>
     Dir.glob(['app/*.coffee', 'test/*.coffee']) do |task|
   mkdir_p 'app/concat'
   dash_r_paths = task.prerequisites.map { |path|
-    ['-r', "./#{path}"] if path.start_with?('app/')
+    if path.start_with?('app/')
+      path = path.gsub(%r[^app/], 'app-istanbul/')
+      path = path.gsub(%r[\.coffee$], '.js')
+      ['-r', "./#{path}"]
+    end
   }.compact.flatten.join(' ')
   non_dash_r_paths = task.prerequisites.select { |path|
     path.start_with?('test/')
   }.join(' ')
   command = %W[
-    node_modules/.bin/browserify
-    -t coffeeify
+    rm -rf app-compiled app-istanbul
+  ; cp -R app app-compiled
+  ; coffee -c app-compiled/*.coffee
+  ; rm -rf
+      app-compiled/bower_components
+      app-compiled/concat
+      app-compiled/shims
+  ; rm app-compiled/*.coffee
+  ; perl -pi -w -e 's/\.coffee/\.js/g;' app-compiled/*.js
+  ; node_modules/.bin/istanbul
+      instrument
+      app-compiled
+      --no-compact
+      --embed-source
+      --preserve-comments
+      -o app-istanbul
+  ; node_modules/.bin/browserify
     --insert-global-vars ''
+    -t coffeeify
     -d
     -r jquery -r backbone -r underscore -r react
     #{dash_r_paths}
     #{non_dash_r_paths}
-    > test/concat/browserified.js
-  ; node_modules/.bin/istanbul
-    instrument
-    test/concat/browserified.js
   ].join(' ')
   create_with_sh command, task.name
+
+  command = %Q[
+    rm -rf app-compiled app-istanbul;
+    perl -pi -e "s/require\\('..\\/app\\/(.*)\\.coffee'\\)/require\\('.\\/app-istanbul\\/\\1.js'\\)/g" #{task.name}
+  ]
+  sh command
 end
 
 file 'test/concat/vendor.js' => %w[
