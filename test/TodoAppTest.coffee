@@ -23,11 +23,15 @@ dblclick_on = (node) ->
 keydown_in = (node, keyCode, string) ->
   node = node.getDOMNode() if node.getDOMNode
   e = document.createEvent('KeyboardEvent')
-  e.initKeyboardEvent("keydown", true, true, null, false, false,
-                      false, false, keyCode, string.charCodeAt(0))
-  # Hack: see http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/10520017#10520017
-  Object.defineProperty e, 'keyCode', { get: (-> keyCode) }
-  Object.defineProperty e, 'which',   { get: (-> string.charCodeAt(0)) }
+  if e.initKeyboardEvent # Chrome
+    e.initKeyboardEvent("keydown", true, true, null, false, false,
+                        false, false, keyCode, string.charCodeAt(0))
+    # Hack: see http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/10520017#10520017
+    Object.defineProperty e, 'keyCode', { get: (-> keyCode) }
+    Object.defineProperty e, 'which',   { get: (-> string.charCodeAt(0)) }
+  else
+    e.initKeyEvent("keydown", true, true, null, false, false,
+                   false, false, keyCode, string.charCodeAt(0))
   node.dispatchEvent e
 
 ENTER_KEY_CODE = 13
@@ -142,6 +146,12 @@ describe 'TodoApp', ->
     liClasses = query1(app, 'section li').className.split(' ')
     expect(liClasses).not.toContain('editing')
 
+  it 'can leave a todo unedited (for coverage)', ->
+    { todos, app } = setup([ new Todo(title: 'unchanged', completed: false) ])
+    dblclick_on query1(app, 'section li label')
+    trigger_change_in query(app, 'section li input.edit')[0]
+    keydown_in query1(app, 'section li input.edit'), ENTER_KEY_CODE, "\n"
+
   it 'ignores non-special keydowns when editing (just for coverage)', ->
     { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
     dblclick_on query1(app, 'section li label')
@@ -149,12 +159,12 @@ describe 'TodoApp', ->
 
   it 'can mark a todo completed', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
-    click_on query1(app, 'section li input[type=checkbox')
+    click_on query1(app, 'section li input[type=checkbox]')
     expect(query(app, 'section li.completed').length).toEqual 1
 
   it 'can mark a todo not completed', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: true) ])
-    click_on query1(app, 'section li input[type=checkbox')
+    click_on query1(app, 'section li input[type=checkbox]')
     expect(query(app, 'section li.completed').length).toEqual 0
 
   it 'can mark all todos completed (starting w/ uncompleted)', ->
