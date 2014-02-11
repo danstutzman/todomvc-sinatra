@@ -20,15 +20,18 @@ dblclick_on = (node) ->
   node = node.getDOMNode() if node.getDOMNode
   node.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
 
-hit_enter_in = (node) ->
+keydown_in = (node, keyCode, string) ->
   node = node.getDOMNode() if node.getDOMNode
   e = document.createEvent('KeyboardEvent')
   e.initKeyboardEvent("keydown", true, true, null, false, false,
-                      false, false, 13, "\n".charCodeAt(0))
+                      false, false, keyCode, string.charCodeAt(0))
   # Hack: see http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/10520017#10520017
-  Object.defineProperty e, 'keyCode', { get: (-> 13) }
-  Object.defineProperty e, 'which',   { get: (-> 13) }
+  Object.defineProperty e, 'keyCode', { get: (-> keyCode) }
+  Object.defineProperty e, 'which',   { get: (-> string.charCodeAt(0)) }
   node.dispatchEvent e
+
+ENTER_KEY_CODE = 13
+ESCAPE_KEY_CODE = 27
 
 trigger_change_in = (node) ->
   node = node.getDOMNode() if node.getDOMNode
@@ -70,21 +73,56 @@ describe 'TodoApp', ->
   it 'can add a todo', ->
     { todos, app } = setup([])
     app.refs.newField.getDOMNode().value = 'added'
-    hit_enter_in app.refs.newField
+    keydown_in app.refs.newField, ENTER_KEY_CODE, "\n"
     expect(query(app, 'section li').length).toEqual 1
 
-  it 'can delete a todo', ->
+  it 'ignores non-special keydowns (just for coverage)', ->
+    { todos, app } = setup([])
+    keydown_in app.refs.newField, "a".charCodeAt(0), "a"
+
+  it 'ignores Enter when new todo is blank', ->
+    { todos, app } = setup([])
+    keydown_in app.refs.newField, ENTER_KEY_CODE, "\n"
+    expect(query(app, 'section li').length).toEqual 0
+
+  it 'can delete a todo w/ delete button', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
     click_on query1(app, 'section li button.destroy')
     expect(query(app, 'section li').length).toEqual 0
+
+  it 'can delete a todo w/ editing to blank', ->
+    { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
+    dblclick_on query1(app, 'section li label')
+    query1(app, 'section li input.edit').value = ''
+    trigger_change_in query(app, 'section li input.edit')[0]
+    keydown_in query1(app, 'section li input.edit'), ENTER_KEY_CODE, "\n"
+    expect(query(app, 'section li').length).toEqual 0
+
+  it 'can start editing a todo', ->
+    { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
+    dblclick_on query1(app, 'section li label')
+    liClasses = query1(app, 'section li').className.split(' ')
+    expect(liClasses).toContain('editing')
+
+  it 'can revert editing with Esc key', ->
+    { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
+    dblclick_on query1(app, 'section li label')
+    query1(app, 'section li input.edit').value = 'after'
+    trigger_change_in query(app, 'section li input.edit')[0]
+    keydown_in query1(app, 'section li input.edit'), ESCAPE_KEY_CODE, "\x1b"
+    expect(query1(app, 'section li label').innerHTML).toEqual 'before'
+    liClasses = query1(app, 'section li').className.split(' ')
+    expect(liClasses).not.toContain('editing')
 
   it 'can edit a todo', ->
     { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
     dblclick_on query1(app, 'section li label')
     query1(app, 'section li input.edit').value = 'after'
     trigger_change_in query(app, 'section li input.edit')[0]
-    hit_enter_in query1(app, 'section li input.edit')
+    keydown_in query1(app, 'section li input.edit'), ENTER_KEY_CODE, "\n"
     expect(query1(app, 'section li label').innerHTML).toEqual 'after'
+    liClasses = query1(app, 'section li').className.split(' ')
+    expect(liClasses).not.toContain('editing')
 
   it 'can mark a todo completed', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
