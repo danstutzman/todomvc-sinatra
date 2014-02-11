@@ -13,12 +13,12 @@ TodoFooter = React.createClass
 
   render: ->
 
-    { a, button, footer, li, span, strong, ul } = React.DOM
+    { a, button, div, li, span, strong, ul } = React.DOM
 
     selectedIfShowing = (option) =>
       if @props.nowShowing == option then 'selected'
 
-    footer
+    div
       id: 'footer'
       span
         id: 'todo-count'

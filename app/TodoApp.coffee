@@ -64,8 +64,9 @@ TodoApp = React.createClass
           placeholder: 'What needs to be done?'
           onKeyDown: @handleNewTodoKeyDown
       if passingTodos.length
-        section
+        div
           id: 'main'
+          className: 'section'
           React.DOM.input
             id: 'toggle-all'
             ref: 'toggle_all'

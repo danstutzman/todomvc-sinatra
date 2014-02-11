@@ -81,17 +81,17 @@ describe 'TodoApp', ->
 
   it 'can start empty', ->
     { todos, app } = setup([])
-    expect(query(app, 'section li').length).toEqual 0
+    expect(query(app, 'div.main li').length).toEqual 0
 
   it 'can start with one todo', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
-    expect(query(app, 'section li').length).toEqual 1
+    expect(query(app, 'div.section li').length).toEqual 1
 
   it 'can add a todo', ->
     { todos, app } = setup([])
     app.refs.newField.getDOMNode().value = 'added'
     keydown_in app.refs.newField, ENTER_KEY_CODE, "\n"
-    expect(query(app, 'section li').length).toEqual 1
+    expect(query(app, 'div.section li').length).toEqual 1
 
   it 'ignores non-special keydowns in new-todo (just for coverage)', ->
     { todos, app } = setup([])
@@ -100,81 +100,81 @@ describe 'TodoApp', ->
   it 'ignores Enter when new todo is blank', ->
     { todos, app } = setup([])
     keydown_in app.refs.newField, ENTER_KEY_CODE, "\n"
-    expect(query(app, 'section li').length).toEqual 0
+    expect(query(app, 'div.section li').length).toEqual 0
 
   it 'can delete a todo w/ delete button', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
-    click_on query1(app, 'section li button.destroy')
-    expect(query(app, 'section li').length).toEqual 0
+    click_on query1(app, 'div.section li button.destroy')
+    expect(query(app, 'div.section li').length).toEqual 0
 
   it 'can delete a todo w/ editing to blank', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
-    dblclick_on query1(app, 'section li label')
-    query1(app, 'section li input.edit').value = ''
-    trigger_change_in query(app, 'section li input.edit')[0]
-    keydown_in query1(app, 'section li input.edit'), ENTER_KEY_CODE, "\n"
-    expect(query(app, 'section li').length).toEqual 0
+    dblclick_on query1(app, 'div.section li label')
+    query1(app, 'div.section li input.edit').value = ''
+    trigger_change_in query(app, 'div.section li input.edit')[0]
+    keydown_in query1(app, 'div.section li input.edit'), ENTER_KEY_CODE, "\n"
+    expect(query(app, 'div.section li').length).toEqual 0
 
   it 'can start editing a todo', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
-    dblclick_on query1(app, 'section li label')
-    liClasses = query1(app, 'section li').className.split(' ')
+    dblclick_on query1(app, 'div.section li label')
+    liClasses = query1(app, 'div.section li').className.split(' ')
     expect(liClasses).toContain('editing')
 
   it 'can revert editing with Esc key', ->
     { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
-    dblclick_on query1(app, 'section li label')
-    query1(app, 'section li input.edit').value = 'after'
-    trigger_change_in query(app, 'section li input.edit')[0]
-    keydown_in query1(app, 'section li input.edit'), ESCAPE_KEY_CODE, "\x1b"
-    expect(query1(app, 'section li label').innerHTML).toEqual 'before'
-    liClasses = query1(app, 'section li').className.split(' ')
+    dblclick_on query1(app, 'div.section li label')
+    query1(app, 'div.section li input.edit').value = 'after'
+    trigger_change_in query(app, 'div.section li input.edit')[0]
+    keydown_in query1(app, 'div.section li input.edit'), ESCAPE_KEY_CODE, "\x1b"
+    expect(query1(app, 'div.section li label').innerHTML).toEqual 'before'
+    liClasses = query1(app, 'div.section li').className.split(' ')
     expect(liClasses).not.toContain('editing')
 
   it 'can edit a todo', ->
     { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
-    dblclick_on query1(app, 'section li label')
-    query1(app, 'section li input.edit').value = 'after'
-    trigger_change_in query(app, 'section li input.edit')[0]
-    keydown_in query1(app, 'section li input.edit'), ENTER_KEY_CODE, "\n"
-    expect(query1(app, 'section li label').innerHTML).toEqual 'after'
-    liClasses = query1(app, 'section li').className.split(' ')
+    dblclick_on query1(app, 'div.section li label')
+    query1(app, 'div.section li input.edit').value = 'after'
+    trigger_change_in query(app, 'div.section li input.edit')[0]
+    keydown_in query1(app, 'div.section li input.edit'), ENTER_KEY_CODE, "\n"
+    expect(query1(app, 'div.section li label').innerHTML).toEqual 'after'
+    liClasses = query1(app, 'div.section li').className.split(' ')
     expect(liClasses).not.toContain('editing')
 
   it 'can leave a todo unedited (for coverage)', ->
     { todos, app } = setup([ new Todo(title: 'unchanged', completed: false) ])
-    dblclick_on query1(app, 'section li label')
-    trigger_change_in query(app, 'section li input.edit')[0]
-    keydown_in query1(app, 'section li input.edit'), ENTER_KEY_CODE, "\n"
+    dblclick_on query1(app, 'div.section li label')
+    trigger_change_in query(app, 'div.section li input.edit')[0]
+    keydown_in query1(app, 'div.section li input.edit'), ENTER_KEY_CODE, "\n"
 
   it 'ignores non-special keydowns when editing (just for coverage)', ->
     { todos, app } = setup([ new Todo(title: 'before', completed: false) ])
-    dblclick_on query1(app, 'section li label')
-    keydown_in query1(app, 'section li input.edit'), "a".charCodeAt(0), "a"
+    dblclick_on query1(app, 'div.section li label')
+    keydown_in query1(app, 'div.section li input.edit'), "a".charCodeAt(0), "a"
 
   it 'can mark a todo completed', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: false) ])
-    click_on query1(app, 'section li input[type=checkbox]')
-    expect(query(app, 'section li.completed').length).toEqual 1
+    click_on query1(app, 'div.section li input[type=checkbox]')
+    expect(query(app, 'div.section li.completed').length).toEqual 1
 
   it 'can mark a todo not completed', ->
     { todos, app } = setup([ new Todo(title: 'test', completed: true) ])
-    click_on query1(app, 'section li input[type=checkbox]')
-    expect(query(app, 'section li.completed').length).toEqual 0
+    click_on query1(app, 'div.section li input[type=checkbox]')
+    expect(query(app, 'div.section li.completed').length).toEqual 0
 
   it 'can mark all todos completed (starting w/ uncompleted)', ->
     todo1 = new Todo(title: 'test1', completed: false)
     todo2 = new Todo(title: 'test2', completed: false)
     { todos, app } = setup([todo1, todo2])
     click_on app.refs.toggle_all
-    expect(query(app, 'section li.completed').length).toEqual 2
+    expect(query(app, 'div.section li.completed').length).toEqual 2
 
   it 'can mark all todos completed (starting w/ 1 completed)', ->
     todo1 = new Todo(title: 'test1', completed: true)
     todo2 = new Todo(title: 'test2', completed: false)
     { todos, app } = setup([todo1, todo2])
     click_on app.refs.toggle_all
-    expect(query(app, 'section li.completed').length).toEqual 2
+    expect(query(app, 'div.section li.completed').length).toEqual 2
 
   it 'can mark all todos uncompleted', ->
     todo1 = new Todo(title: 'test1', completed: true)
@@ -188,7 +188,7 @@ describe 'TodoApp', ->
     todo2 = new Todo(title: 'test2', completed: false)
     { todos, app } = setup([todo1, todo2])
     click_on app.refs.footer.refs.clear_completed
-    expect(query(app, 'section li').length).toEqual 1
+    expect(query(app, 'div.section li').length).toEqual 1
 
   it 'can filter for all todos', (done) ->
      todo1 = new Todo(title: 'test1', completed: true)
@@ -197,7 +197,7 @@ describe 'TodoApp', ->
      { todos, app } = setup([todo1, todo2, todo3])
      hash = hash_from_link(app.refs.footer.refs.all)
      go_to_hash hash, done, ->
-       expect(query(app, 'section li').length).toEqual 3
+       expect(query(app, 'div.section li').length).toEqual 3
 
   it 'can filter for only non-completed todos', (done) ->
      todo1 = new Todo(title: 'test1', completed: true)
@@ -206,7 +206,7 @@ describe 'TodoApp', ->
      { todos, app } = setup([todo1, todo2, todo3])
      hash = hash_from_link(app.refs.footer.refs.active)
      go_to_hash hash, done, ->
-       expect(query(app, 'section li').length).toEqual 2
+       expect(query(app, 'div.section li').length).toEqual 2
 
   it 'can filter for only completed todos', (done) ->
      todo1 = new Todo(title: 'test1', completed: true)
@@ -215,7 +215,7 @@ describe 'TodoApp', ->
      { todos, app } = setup([todo1, todo2, todo3])
      hash = hash_from_link(app.refs.footer.refs.completed)
      go_to_hash hash, done, ->
-       expect(query(app, 'section li').length).toEqual 1
+       expect(query(app, 'div.section li').length).toEqual 1
 
    afterEach =>
      @div.parentNode.removeChild @div
