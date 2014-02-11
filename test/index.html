@@ -27,7 +27,9 @@
               })
             }
           };
-          jasmine.getEnv().addReporter(reporter);
+          if (window.location.search.indexOf('coverage=true') != -1) {
+            jasmine.getEnv().addReporter(reporter);
+          }
         </script>
 
         <script src="concat/vendor.js"></script>
