@@ -160,7 +160,7 @@ file 'app/concat' => %w[
   app/concat/all.css
   app/concat/ie8.js
   app/concat/vendor.js
-  app/concat/browserified-coverage.js
+  app/concat/browserified.js
   app/concat/bg.png
 ]
 
