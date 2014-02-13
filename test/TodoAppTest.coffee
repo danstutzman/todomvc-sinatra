@@ -91,6 +91,7 @@ describe 'TodoApp', ->
       nowShowing: 'all'
       doCommand: doer.doCommand
     todos.on 'add destroy change', -> app.setProps todos: todos
+    todos.url = '/todos'
     @div = render(app)
     { todos, app }
 

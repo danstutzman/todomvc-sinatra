@@ -32,6 +32,7 @@
           var CommandDoer = require('./app/CommandDoer.coffee');
 
           var todos = new Todos(initialTodos);
+          todos.url = '/todos';
           var doer = new CommandDoer(todos);
           var app = TodoApp({
             todos: todos,
