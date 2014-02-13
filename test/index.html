@@ -38,6 +38,35 @@
           if (window.location.search.indexOf('coverage=true') != -1) {
             jasmine.getEnv().addReporter(reporter);
           }
+
+          var currentSpec = null;
+          var reporter2 = {
+            specStarted: function(spec) {
+              currentSpec = spec;
+            },
+          }
+          jasmine.getEnv().addReporter(reporter2);
+          window.onerror = function(message, url, lineNumber) {
+            if (currentSpec === null) {
+              describe('window.onError', function() {
+                it("caught an error", function() {
+                  throw new Error('See console: ' + message + " at " + url +
+                    ":" + lineNumber);
+                });
+              });
+            } else {
+              currentSpec.status = 'failed';
+              if (message == 'Script error.' && lineNumber == 0) {
+                message += ' (See console and try running tests from http:// ' +
+                  'not file:// for a better error message)';
+              }
+              currentSpec.failedExpectations.push({
+                passed: false,
+                message: message,
+                stack: '' + message + '\nat ' + url + ':' + lineNumber
+              });
+            }
+          };
         </script>
 
         <script src="concat/vendor.js"></script>
