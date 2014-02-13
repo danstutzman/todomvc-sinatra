@@ -1,0 +1,12 @@
+#!/bin/bash
+if [ "$1" == "" ]; then
+  echo 1>&2 "First arg: SHA1 to run tests for"
+  exit 1
+fi
+cd ~/dev/todomvc-sinatra-autotest
+git fetch -q sibling
+git reset -q --hard "$1"
+npm install 2>&1 | grep -v No
+bower install
+cp test/copy-to-karmine-jasmine-lib-adapter.js node_modules/karma-jasmine/lib/adapter.js
+node_modules/.bin/karma start --single-run

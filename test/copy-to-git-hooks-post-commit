@@ -1,0 +1,4 @@
+#!/bin/bash
+cd `dirname $0`/../..
+SHA1="$(git log -1 HEAD --pretty=format:%H)"
+./test/post-commit-karma "$SHA1" > /dev/null &
