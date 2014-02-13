@@ -31,21 +31,21 @@ TodoFooter = React.createClass
           a
             ref: 'all'
             href: '#/'
-            className: selectedIfShowing(ALL_TODOS)
+            className: selectedIfShowing('all')
             'All'
         ' '
         li {},
           a
             ref: 'active'
             href: '#/active'
-            className: selectedIfShowing(ACTIVE_TODOS)
+            className: selectedIfShowing('active')
             'Active'
         ' '
         li {},
           a
             ref: 'completed'
             href: '#/completed'
-            className: selectedIfShowing(COMPLETED_TODOS)
+            className: selectedIfShowing('completed')
             'Completed'
       if @props.completedCount > 0
         button

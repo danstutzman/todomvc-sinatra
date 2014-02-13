@@ -3,9 +3,6 @@ TodoFooter = require('./TodoFooter.coffee')
 Todo       = require('./Todo.coffee')
 Todos      = require('./Todos.coffee')
 
-window.ALL_TODOS       = 'all'
-window.ACTIVE_TODOS    = 'active'
-window.COMPLETED_TODOS = 'completed'
 ENTER_KEY              = 13
 type                   = React.PropTypes
 
@@ -15,17 +12,10 @@ TodoApp = React.createClass
 
   propTypes:
     todos:      type.instanceOf(Todos).isRequired
+    nowShowing: type.string.isRequired
     doCommand:  type.func.isRequired
 
-  getInitialState: ->
-    nowShowing: ALL_TODOS
-
   componentDidMount: ->
-    router = Router
-      '/':          @setState.bind(this, nowShowing: ALL_TODOS)
-      '/active':    @setState.bind(this, nowShowing: ACTIVE_TODOS)
-      '/completed': @setState.bind(this, nowShowing: COMPLETED_TODOS)
-    router.init()
     window.setTimeout (=> @refs.newField.getDOMNode().focus()), 0
 
   handleNewTodoKeyDown: (event) ->
@@ -46,10 +36,10 @@ TodoApp = React.createClass
     completedTodos = @props.todos.filter (todo) ->
       todo.get('completed')
 
-    passingTodos = switch @state.nowShowing
-      when ACTIVE_TODOS    then activeTodos
-      when COMPLETED_TODOS then completedTodos
-      else @props.todos
+    passingTodos = switch @props.nowShowing
+      when 'all'           then @props.todos
+      when 'active'        then activeTodos
+      when 'completed'     then completedTodos
 
     { div, h1, input, section, ul } = React.DOM
 
@@ -85,7 +75,7 @@ TodoApp = React.createClass
           ref: 'footer'
           count: activeTodos.length
           completedCount: completedTodos.length
-          nowShowing: @state.nowShowing
+          nowShowing: @props.nowShowing
           doCommand: @props.doCommand
 
 module.exports = TodoApp

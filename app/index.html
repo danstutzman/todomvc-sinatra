@@ -33,8 +33,20 @@
 
           var todos = new Todos(initialTodos);
           var doer = new CommandDoer(todos);
-          var app = TodoApp({ todos: todos, doCommand: doer.doCommand });
+          var app = TodoApp({
+            todos: todos,
+            nowShowing: 'all',
+            doCommand: doer.doCommand
+          });
           todos.on('add destroy change', function() { app.setProps(todos); });
+
+          var router = Router({
+            '/':          function() { app.setProps({ nowShowing: 'all' }) },
+            '/active':    function() { app.setProps({ nowShowing: 'active' }) },
+            '/completed': function() { app.setProps({ nowShowing: 'completed'})}
+          });
+          router.init();
+
           React.renderComponent(app, document.getElementById('todoapp'));
         </script>
     </body>

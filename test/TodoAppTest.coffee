@@ -82,37 +82,14 @@ hash_from_link = (a_element) ->
   link = a_element.href
   link = link.substring(link.indexOf('#') + 1) # just the part after #
 
-go_to_hash = (hash, done, expectations) ->
-  if window.attachEvent # if IE8
-    listener1 = ->
-      expectations()
-      # put things back
-      window.detachEvent 'onhashchange', listener1
-      window.attachEvent 'onhashchange', listener2
-      window.location.hash = ''
-    listener2 = ->
-      window.detachEvent 'onhashchange', listener2
-      done()
-    window.attachEvent 'onhashchange', listener1
-    window.location.hash = hash
-  else
-    listener1 = ->
-      expectations()
-      # put things back
-      window.removeEventListener 'hashchange', listener1
-      window.addEventListener 'hashchange', listener2
-      window.location.hash = ''
-    listener2 = ->
-      window.removeEventListener 'hashchange', listener2
-      done()
-    window.addEventListener 'hashchange', listener1
-    window.location.hash = hash
-
 describe 'TodoApp', ->
   setup = (initialTodos) =>
     todos = new Todos(initialTodos)
     doer = new CommandDoer(todos)
-    app = TodoApp(todos: todos, doCommand: doer.doCommand)
+    app = TodoApp
+      todos: todos
+      nowShowing: 'all'
+      doCommand: doer.doCommand
     todos.on 'add destroy change', -> app.setProps todos: todos
     @div = render(app)
     { todos, app }
@@ -228,32 +205,29 @@ describe 'TodoApp', ->
     click_on app.refs.footer.refs.clear_completed
     expect(query(app, 'div.section li').length).toEqual 1
 
-  it 'can filter for all todos', (done) ->
+  it 'can filter for all todos', ->
      todo1 = new Todo(title: 'test1', completed: true)
      todo2 = new Todo(title: 'test2', completed: false)
      todo3 = new Todo(title: 'test3', completed: false)
      { todos, app } = setup([todo1, todo2, todo3])
-     hash = hash_from_link(app.refs.footer.refs.all)
-     go_to_hash hash, done, ->
-       expect(query(app, 'div.section li').length).toEqual 3
+     app.setProps nowShowing: 'all'
+     expect(query(app, 'div.section li').length).toEqual 3
 
-  it 'can filter for only non-completed todos', (done) ->
+  it 'can filter for only non-completed todos', ->
      todo1 = new Todo(title: 'test1', completed: true)
      todo2 = new Todo(title: 'test2', completed: false)
      todo3 = new Todo(title: 'test3', completed: false)
      { todos, app } = setup([todo1, todo2, todo3])
-     hash = hash_from_link(app.refs.footer.refs.active)
-     go_to_hash hash, done, ->
-       expect(query(app, 'div.section li').length).toEqual 2
+     app.setProps nowShowing: 'active'
+     expect(query(app, 'div.section li').length).toEqual 2
 
-  it 'can filter for only completed todos', (done) ->
+  it 'can filter for only completed todos', ->
      todo1 = new Todo(title: 'test1', completed: true)
      todo2 = new Todo(title: 'test2', completed: false)
      todo3 = new Todo(title: 'test3', completed: false)
      { todos, app } = setup([todo1, todo2, todo3])
-     hash = hash_from_link(app.refs.footer.refs.completed)
-     go_to_hash hash, done, ->
-       expect(query(app, 'div.section li').length).toEqual 1
+     app.setProps nowShowing: 'completed'
+     expect(query(app, 'div.section li').length).toEqual 1
 
    afterEach =>
      @div.parentNode.removeChild @div
