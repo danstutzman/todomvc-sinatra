@@ -58,7 +58,6 @@ TodoApp = React.createClass
           className: 'section'
           React.DOM.input
             id: 'toggle-all'
-            ref: 'toggle_all'
             type: 'checkbox'
             onChange: @handleToggleAll
             checked: activeTodos.length == 0

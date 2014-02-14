@@ -27,27 +27,9 @@
         <script>var initialTodos = []; /* server will fill in */</script>
         <script src="concat/browserified.js"></script>
         <script>
-          var TodoApp = require('./app/TodoApp.coffee');
-          var CommandDoer = require('./app/CommandDoer.coffee');
-
-          var app = new TodoApp({
-            todos: [],
-            nowShowing: 'all',
-            doCommand: function(name, args) {
-              var oldTodos = app.props.todos;
-              var newTodos = CommandDoer.doCommand(name, args, oldTodos);
-              app.setProps({ todos: newTodos });
-            }
-          });
-
-          var router = Router({
-            '/':          function() { app.setProps({ nowShowing: 'all' }) },
-            '/active':    function() { app.setProps({ nowShowing: 'active' }) },
-            '/completed': function() { app.setProps({ nowShowing: 'completed'})}
-          });
-          router.init();
-
-          React.renderComponent(app, document.getElementById('todoapp'));
+          var TodoWrapper = require('./app/TodoWrapper.coffee');
+          var targetDiv = document.getElementById('todoapp');
+          new TodoWrapper(initialTodos, targetDiv).run();
         </script>
     </body>
 </html>
