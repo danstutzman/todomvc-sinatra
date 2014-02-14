@@ -1,7 +1,6 @@
-TodoItem   = require('./TodoItem.coffee')
-TodoFooter = require('./TodoFooter.coffee')
-Todo       = require('./Todo.coffee')
-Todos      = require('./Todos.coffee')
+_              = require('underscore')
+TodoItem       = require('./TodoItem.coffee')
+TodoFooter     = require('./TodoFooter.coffee')
 
 ENTER_KEY              = 13
 type                   = React.PropTypes
@@ -11,7 +10,7 @@ TodoApp = React.createClass
   displayName: 'TodoApp'
 
   propTypes:
-    todos:      type.instanceOf(Todos).isRequired
+    todos:      type.array.isRequired
     nowShowing: type.string.isRequired
     doCommand:  type.func.isRequired
 
@@ -30,11 +29,11 @@ TodoApp = React.createClass
       completed: event.target.checked
 
   render: ->
-    activeTodos = @props.todos.filter (todo) ->
-      not todo.get('completed')
+    activeTodos = _.filter @props.todos, (todo) ->
+      not todo.completed
 
-    completedTodos = @props.todos.filter (todo) ->
-      todo.get('completed')
+    completedTodos = _.filter @props.todos, (todo) ->
+      todo.completed
 
     passingTodos = switch @props.nowShowing
       when 'all'           then @props.todos

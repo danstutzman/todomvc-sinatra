@@ -28,18 +28,17 @@
         <script src="concat/browserified.js"></script>
         <script>
           var TodoApp = require('./app/TodoApp.coffee');
-          var Todos   = require('./app/Todos.coffee');
           var CommandDoer = require('./app/CommandDoer.coffee');
 
-          var todos = new Todos(initialTodos);
-          todos.url = '/todos';
-          var doer = new CommandDoer(todos);
-          var app = TodoApp({
-            todos: todos,
+          var app = new TodoApp({
+            todos: [],
             nowShowing: 'all',
-            doCommand: doer.doCommand
+            doCommand: function(name, args) {
+              var oldTodos = app.props.todos;
+              var newTodos = CommandDoer.doCommand(name, args, oldTodos);
+              app.setProps({ todos: newTodos });
+            }
           });
-          todos.on('add destroy change', function() { app.setProps(todos); });
 
           var router = Router({
             '/':          function() { app.setProps({ nowShowing: 'all' }) },

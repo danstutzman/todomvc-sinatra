@@ -126,9 +126,7 @@ file 'app/concat/vendor.js' => %w[
   app/bower_components/todomvc-common/base.js
   app/bower_components/react/react-with-addons.js
   app/bower_components/director/build/director.js
-  app/bower_components/jquery/jquery.js
   app/bower_components/underscore/underscore.js
-  app/bower_components/backbone/backbone.js
 ] do |task|
   mkdir_p 'app/concat'
   command = "cat #{task.prerequisites.join(' ')}"
@@ -145,7 +143,7 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
     -t coffeeify
     --insert-global-vars ''
     -d
-    -r jquery -r backbone -r underscore -r react
+    -r underscore -r react
     #{dash_r_paths}
   ].join(' ')
   create_with_sh command, task.name
@@ -195,7 +193,6 @@ file 'test/concat/browserified-coverage.js' =>
       app-compiled/shims
   ; rm app-compiled/*.coffee
   ; perl -pi -w -e 's/\.coffee/\.js/g;' app-compiled/*.js
-  ; patch app-compiled/CommandDoer.js test/CommandDoer.patch
   ; node_modules/.bin/istanbul
       instrument
       app-compiled
@@ -207,7 +204,7 @@ file 'test/concat/browserified-coverage.js' =>
     --insert-global-vars ''
     -t coffeeify
     -d
-    -r jquery -r backbone -r underscore -r react
+    -r underscore -r react
     #{dash_r_paths}
     #{non_dash_r_paths}
   ].join(' ')
@@ -224,9 +221,7 @@ file 'test/concat/vendor.js' => %w[
   app/bower_components/todomvc-common/base.js
   test/react-with-test-utils.js
   app/bower_components/director/build/director.js
-  app/bower_components/jquery/jquery.js
   app/bower_components/underscore/underscore.js
-  app/bower_components/backbone/backbone.js
 ] do |task|
   mkdir_p 'test/concat'
   command = "cat #{task.prerequisites.join(' ')}"
@@ -271,10 +266,7 @@ file 'dist/concat/vendor.js' => %w[
   app/bower_components/todomvc-common/base.min.js
   app/bower_components/react/react-with-addons.min.js
   app/bower_components/director/build/director.min.js
-  app/bower_components/jquery/jquery.min.js
   app/bower_components/underscore/underscore-min.js
-  app/newline.js
-  app/bower_components/backbone/backbone-min.js
 ] do |task|
   mkdir_p 'dist/concat'
   command = "cat #{task.prerequisites.join(' ')}"
