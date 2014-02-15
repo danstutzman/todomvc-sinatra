@@ -18,8 +18,7 @@ TodoItem = React.createClass
     if val == ''
       @props.doCommand 'delete_todo', cid: @props.todo.cid
     else if val != @props.todo.title
-      @props.doCommand 'set_title_on_todo',
-        cid: @props.todo.cid, title: val
+      @props.doCommand 'set_on_todo', cid: @props.todo.cid, title: val
     @setState isEditing: false
 
   handleEdit: ->
@@ -38,7 +37,8 @@ TodoItem = React.createClass
     @setState editText: event.target.value
 
   handleToggle: (event) ->
-    @props.doCommand 'toggle_completed_on_todo', cid: @props.todo.cid
+    @props.doCommand 'set_on_todo',
+      cid: @props.todo.cid, completed: !@props.todo.completed
 
   shouldComponentUpdate: (nextProps, nextState) ->
     nextProps.todo      != @props.todo      or
@@ -54,6 +54,9 @@ TodoItem = React.createClass
       className:
         (@props.todo.completed && 'completed ' || '') +
         (@state.isEditing      && 'editing '   || '')
+      div
+        style: { 'font-size': '8pt', float: 'right' }
+        "cid #{@props.todo.cid}, id #{@props.todo.id}"
       div
         className: 'view'
         input

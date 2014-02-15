@@ -26,10 +26,19 @@ class SyncedState
          { doSimulateCommand, doSyncCommand, syncedState }')
     @doSimulateCommand = options.doSimulateCommand
     @doSyncCommand     = options.doSyncCommand
-    @syncedState       = options.syncedState
+    @syncedState       = @_addCids(options.syncedState)
     @syncingCommands   = []
     @ajaxQueue         = Queue()
     @simulatedState    = @syncedState
+
+  _addCids: (list) ->
+    if typeof list == 'object' # an array
+      nextCid = 0
+      _.map list, (item) ->
+        nextCid += 1
+        _.extend(_.clone(item), cid: nextCid)
+    else # for testing purposes
+      list
 
   simulateAndSyncCommand: (command) =>
     @syncingCommands.push command

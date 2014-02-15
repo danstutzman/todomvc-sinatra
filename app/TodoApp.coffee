@@ -9,6 +9,12 @@ TodoApp = React.createClass
 
   displayName: 'TodoApp'
 
+  getInitialState: ->
+    maxCid = _.reduce @props.todos,
+      (memo, todo) -> if todo.cid > memo then todo.cid else memo
+      0
+    { nextCid: maxCid + 1}
+
   propTypes:
     todos:      type.array.isRequired
     nowShowing: type.string.isRequired
@@ -21,12 +27,13 @@ TodoApp = React.createClass
     return if event.keyCode != ENTER_KEY
     val = @refs.newField.getDOMNode().value.trim()
     if val
-      @props.doCommand 'create_todo', title: val
+      nextCid = @state.nextCid
+      @setState nextCid: nextCid + 1
+      @props.doCommand 'create_todo', cid: nextCid, title: val, completed: false
       @refs.newField.getDOMNode().value = ''
 
   handleToggleAll: (event) ->
-    @props.doCommand 'set_completed_on_all_todos',
-      completed: event.target.checked
+    @props.doCommand 'set_on_all_todos', completed: event.target.checked
 
   render: ->
     activeTodos = _.filter @props.todos, (todo) ->

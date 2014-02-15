@@ -48,8 +48,7 @@ module TodomvcBackend
 
     post '/todos' do
       hash = JSON.parse(request.body.read)
-      id = hash.delete('id')
-      todo = TodoItem.new(hash)
+      todo = TodoItem.new(hash.reject { |key| key == 'id' })
       todo.save
       todo.to_json
     end
@@ -58,12 +57,12 @@ module TodomvcBackend
     put '/todos' do
       hashes = JSON.parse(request.body.read)
       ids = TodoItem.select(:id).map { |todo| todo.id }
-      hashes.each do |hash|
+      out = hashes.map do |hash|
         todo = TodoItem.find(id: hash['id'])
-        id = hash.delete('id')
-        todo.update(hash)
+        todo.update(hash.reject { |key| key == 'id' })
+        todo
       end
-      'ok'
+      out.to_json
     end
 
     put '/todos/:id' do

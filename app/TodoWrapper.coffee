@@ -1,12 +1,19 @@
-_           = require('underscore')
-TodoApp     = require('./TodoApp.coffee')
-CommandDoer = require('./CommandDoer.coffee')
+Deferred          = require('deferred')
+TodoApp           = require('./TodoApp.coffee')
+SimulateCommand   = require('./SimulateCommand.coffee')
+SyncCommand       = require('./SyncCommand.coffee')
+SyncedState       = require('./SyncedState.coffee')
 
 class TodoWrapper
 
+# TODO: give localhost:9292 url to SyncCommand
+# TODO: render server errors and response time
+
   constructor: (initialTodos, targetDiv) ->
-    @todos = _.map(initialTodos, (todo, cid) ->
-      _.extend(_.clone(todo), cid: cid))
+    @syncedState = new SyncedState
+      doSimulateCommand: SimulateCommand.doCommand
+      doSyncCommand: SyncCommand.doCommand
+      syncedState: initialTodos
     @nowShowing = 'all'
     @targetDiv = targetDiv
 
@@ -19,15 +26,22 @@ class TodoWrapper
     @_render()
 
   _doCommand: (name, args) =>
-    @todos = CommandDoer.doCommand(name, args, @todos)
-    @_render()
+    command = args || {}
+    command.name = name
+    promise = @syncedState.simulateAndSyncCommand(command)
+    promise.done @_render, @_render
 
-  _render: ->
+    @_render() # to show results of simulation
+
+  _render: (err) =>
     React.renderComponent(
       TodoApp
-        todos: @todos
+        todos: @syncedState.simulatedState
         nowShowing: @nowShowing
         doCommand: @_doCommand
       @targetDiv)
+    if err
+      console.error 'show this error to the user:', err
+      throw err
 
 module.exports = TodoWrapper
