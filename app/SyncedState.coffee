@@ -39,7 +39,7 @@ class SyncedState
       @doSyncCommand(command, @syncedState)#.then(handleSuccess)
     handleSuccess = (newSyncedState) =>
       @syncedState = newSyncedState
-      @syncingCommands.pop()
+      @syncingCommands.shift()
       # recreate simulatedState, starting from known syncedState
       @simulatedState = @syncedState
       _.each @syncingCommands, (command) =>
