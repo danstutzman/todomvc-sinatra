@@ -284,7 +284,7 @@ file 'dist/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
       -t uglifyify
       --insert-global-vars ''
       -d
-      -r jquery -r backbone -r underscore -r react
+      -r underscore -r react
       #{dash_r_paths}
   | node
       node_modules/exorcist/bin/exorcist.js

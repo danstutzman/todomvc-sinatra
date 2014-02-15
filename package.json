@@ -30,8 +30,6 @@
   },
   "browser": {
     "react": "./app/shims/react.js",
-    "backbone": "./app/shims/backbone.js",
-    "underscore": "./app/shims/underscore.js",
-    "jquery": "./app/shims/jquery.js"
+    "underscore": "./app/shims/underscore.js"
   }
 }
