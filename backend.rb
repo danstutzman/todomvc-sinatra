@@ -35,7 +35,7 @@ module TodomvcBackend
     get '/' do
       `rake app/concat`
 
-      todo_json = TodoItem.all.to_json
+      todo_json = TodoItem.order(:id).all.to_json
 
       html = File.read('app/index.html')
       html.sub! /var initialTodos = \[\];/, "var initialTodos = #{todo_json};"
@@ -43,7 +43,7 @@ module TodomvcBackend
     end
 
     get '/todos' do
-      TodoItem.all.to_json
+      TodoItem.order(:id).all.to_json
     end
 
     post '/todos' do
