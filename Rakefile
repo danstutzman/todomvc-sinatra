@@ -322,12 +322,14 @@ task :sauce_connect do
 end
 
 namespace :db do
-  task :sequel do
+  task :sequel => :dotenv_default_dev do
     require 'sequel'
     Sequel.extension :migration
     $db = Sequel.connect(ENV.fetch('DATABASE_URL'))
     $db.logger = Logger.new($stdout)
   end
+
+  task :sequel_test => [:dotenv_default_test, :sequel]
 
   desc 'Run DB migrations'
   task :migrate, [:version] => :sequel do |t, args|
@@ -353,7 +355,7 @@ namespace :db do
     sh "pg_dump --schema-only #{$db.url} > db/schema.sql"
   end
 
-  task :reset_test_db => :sequel do
+  task :reset_test_db => :sequel_test do
     require 'database_cleaner'
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
