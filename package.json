@@ -1,7 +1,9 @@
 {
   "name": "todomvc-sinatra",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "deferred": "~0.6.8"
+  },
   "devDependencies": {
     "karma": "~0.10.9",
     "karma-chrome-launcher": "~0.1.2",
@@ -20,7 +22,8 @@
     "clean-css": "~2.0.0",
     "uglifyify": "~1.2.0",
     "exorcist": "~0.1.5",
-    "istanbul": "~0.2.4"
+    "istanbul": "~0.2.4",
+    "mocha": "~1.17.1"
   },
   "engines": {
     "node": ">=0.8.0"
