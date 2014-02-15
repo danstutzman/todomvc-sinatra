@@ -36,18 +36,18 @@ class SyncedState
     @simulatedState = @doSimulateCommand command, @simulatedState
 
     addSync = =>
-      handleSuccess = (newSyncedState) =>
-        @syncedState = newSyncedState
-        @syncingCommands.pop()
-        # recreate simulatedState, starting from known syncedState
-        @simulatedState = @syncedState
-        _.each @syncingCommands, (command) =>
-          @simulatedState = @doSimulateCommand command, @simulatedState
-      handleFailure = (err) =>
-        @simulatedState = @syncedState # revert back to last known server state!
-        @syncingCommands = [] # throw out all commands!
-        throw err
-      @doSyncCommand(command).then(handleSuccess, handleFailure)
-    otherPromise = @ajaxQueue addSync
+      @doSyncCommand(command, @syncedState)#.then(handleSuccess)
+    handleSuccess = (newSyncedState) =>
+      @syncedState = newSyncedState
+      @syncingCommands.pop()
+      # recreate simulatedState, starting from known syncedState
+      @simulatedState = @syncedState
+      _.each @syncingCommands, (command) =>
+        @simulatedState = @doSimulateCommand command, @simulatedState
+    handleFailure = (err) =>
+      @simulatedState = @syncedState # revert back to last known server state!
+      @syncingCommands = [] # throw out all commands!
+      throw err
+    otherPromise = @ajaxQueue(addSync).then(handleSuccess, handleFailure)
 
 module.exports = SyncedState

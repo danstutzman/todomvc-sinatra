@@ -28,7 +28,10 @@ describe 'SyncedState', ->
     server1 = new Deferred()
     state = new SyncedState
       doSimulateCommand: -> -1
-      doSyncCommand: -> server1.promise
+      doSyncCommand: (command, syncedState) ->
+        assert.deepEqual command, name: 'increment'
+        assert.equal syncedState, 0
+        server1.promise
       syncedState: 0
     state.simulateAndSyncCommand(name: 'increment').done ->
       assert.equal state.simulatedState, 1
@@ -40,7 +43,9 @@ describe 'SyncedState', ->
     server1 = new Deferred()
     state = new SyncedState
       doSimulateCommand: -> -1
-      doSyncCommand: -> server1.promise
+      doSyncCommand: (command, syncedState) ->
+        assert.equal syncedState, 0
+        server1.promise
       syncedState: 0
     state.simulateAndSyncCommand(name: 'increment').done null, (err) ->
       assert.equal state.simulatedState, 0
@@ -53,7 +58,9 @@ describe 'SyncedState', ->
     server2 = new Deferred()
     state = new SyncedState
       doSimulateCommand: -> -1
-      doSyncCommand: -> server1.promise
+      doSyncCommand: (command, syncedState) ->
+        assert.equal syncedState, 0
+        server1.promise
       syncedState: 0
 
     part1 = PromisedPart (done) ->
@@ -64,7 +71,9 @@ describe 'SyncedState', ->
 
     part2 = PromisedPart (done) ->
       state.doSimulateCommand = -> -2
-      state.doSyncCommand = -> server2.promise
+      state.doSyncCommand = (command, syncedState) ->
+        assert.equal syncedState, 1
+        server2.promise
       state.simulateAndSyncCommand(name: 'increment').done ->
         assert.equal state.simulatedState, 2
         done()
@@ -77,13 +86,17 @@ describe 'SyncedState', ->
     server2 = new Deferred()
     state = new SyncedState
       doSimulateCommand: -> -1
-      doSyncCommand: -> server1.promise
+      doSyncCommand: (command, syncedState) ->
+        assert.equal syncedState, 0
+        server1.promise
       syncedState: 0
 
     state.simulateAndSyncCommand(name: 'increment').done ->
       assert.equal state.simulatedState, -2 # NOT 1, because we still have 2 queued
     state.doSimulateCommand = -> -2
-    state.doSyncCommand = -> server2.promise
+    state.doSyncCommand = (command, syncedState) ->
+      assert.equal syncedState, 1
+      server2.promise
     state.simulateAndSyncCommand(name: 'increment').done ->
       assert.equal state.simulatedState, 2
       done()
@@ -95,15 +108,22 @@ describe 'SyncedState', ->
     server2 = new Deferred()
     state = new SyncedState
       doSimulateCommand: -> -1
-      doSyncCommand: -> server1.promise
+      doSyncCommand: (command, syncedState) ->
+        assert.equal syncedState, 0
+        server1.promise
       syncedState: 0
 
     state.simulateAndSyncCommand(name: 'increment').done ->
+      assert.equal state.syncedState, 1
       assert.equal state.simulatedState, -2 # NOT 1, because we still have 2 queued
+
     state.doSimulateCommand = -> -2
-    state.doSyncCommand = -> server2.promise
+    state.doSyncCommand = (command, syncedState) ->
+      assert.equal syncedState, 0 # STILL at 0
+      server2.promise
     state.simulateAndSyncCommand(name: 'increment').done null, (err) ->
-      assert.equal state.simulatedState, 1 # revert to 1
+      assert.equal state.syncedState, 1 # it reverted to 1
+      assert.equal state.simulatedState, 1 # it reverted to 1
       done()
     server1.resolve 1
     server2.reject Error('server error')
