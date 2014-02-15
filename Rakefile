@@ -144,6 +144,7 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
     --insert-global-vars ''
     -d
     -r underscore -r react
+    -u xmlhttprequest
     #{dash_r_paths}
   ].join(' ')
   create_with_sh command, task.name
@@ -205,6 +206,7 @@ file 'test/concat/browserified-coverage.js' =>
     -t coffeeify
     -d
     -r underscore -r react
+    -u xmlhttprequest
     #{dash_r_paths}
     #{non_dash_r_paths}
   ].join(' ')
@@ -285,6 +287,7 @@ file 'dist/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
       --insert-global-vars ''
       -d
       -r underscore -r react
+      -u xmlhttprequest
       #{dash_r_paths}
   | node
       node_modules/exorcist/bin/exorcist.js

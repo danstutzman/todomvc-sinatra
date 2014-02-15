@@ -1,5 +1,8 @@
-Deferred       = require('deferred').Deferred
-#XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
+Deferred = require('deferred').Deferred
+if typeof(window) != 'undefined'
+  XMLHttpRequest = window.XMLHttpRequest
+else
+  XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
 
 TIMEOUT_MILLIS = 2000
 
