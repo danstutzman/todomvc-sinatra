@@ -8,7 +8,6 @@ makeSyncCommand = (handler) ->
     faked_response = handler(method, path, data)
     Deferred().resolve(faked_response)
   ajax =
-    get:    (path, data) -> promise_handler 'GET',    path, data
     post:   (path, data) -> promise_handler 'POST',   path, data
     put:    (path, data) -> promise_handler 'PUT',    path, data
     delete: (path, data) -> promise_handler 'DELETE', path, data
@@ -19,6 +18,23 @@ F1 = { cid:1, x:1, id:-1 }
 F2 = { cid:2, x:2, id:-2 }
 
 describe 'SyncCommand', ->
+  it 'calls commands from doCommand', (done) ->
+    sync = new SyncCommand({}, '')
+    sync.create_todo = (args, todos) ->
+      assert.deepEqual args, { x: 1 }
+      assert.deepEqual todos, [{}, {}]
+      done()
+    sync.doCommand name: 'create_todo', x: 1, [{}, {}]
+
+  it 'raises error if unknown command (for coverage)', ->
+    sync = new SyncCommand({}, '')
+    assert.throws ->
+      sync.doCommand name: 'unknown'
+
+  it "raises error if can't find todo with cid (for coverage)", ->
+    sync = new SyncCommand({}, '')
+    assert.throws ->
+      sync.delete_todo(cid: 1, [{cid: 2}])
 
   it 'can create_todo', (done) ->
     base = title: 'test', completed: false

@@ -324,6 +324,26 @@ task :sauce_connect do
   sh command
 end
 
+task :unit_test_cov do
+  command = %W[
+    rm -rf app-compiled test-compiled
+  ; cp -R app app-compiled
+  ; coffee -c app-compiled
+  ; cp -R test test-compiled
+  ; coffee -c test-compiled
+  ; perl -pi -e "s/require\\('..\\/app\\/(.*)\\.coffee'\\)/require\\('..\\/app-compiled\\/\\1.js'\\)/g" test-compiled/*.js
+  ; node_modules/.bin/istanbul cover
+      node_modules/.bin/_mocha --
+        -u exports
+        -R spec
+        test-compiled/SyncCommandTest.js
+  ; node_modules/.bin/istanbul report
+  ; rm -rf app-compiled test-compiled
+  ; open coverage/lcov-report/app-compiled/index.html
+  ].join(' ')
+  sh command
+end
+
 namespace :db do
   task :sequel => :dotenv_default_dev do
     require 'sequel'
