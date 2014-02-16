@@ -27,6 +27,7 @@
         <script>var initialTodos = []; /* server will fill in */</script>
         <script src="concat/browserified.js"></script>
         <script>
+          if (typeof(require) === 'undefined') alert("Couldn't load browserified.js");
           var TodoWrapper = require('./app/TodoWrapper.coffee');
           var targetDiv = document.getElementById('todoapp');
           new TodoWrapper(initialTodos, targetDiv).run();
