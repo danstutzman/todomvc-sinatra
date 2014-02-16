@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bundler'
-Bundler.require
+Bundler.setup
 
 require 'rake'
 require 'open-uri'

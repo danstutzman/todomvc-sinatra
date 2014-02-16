@@ -1,9 +1,12 @@
 require 'rubygems'
 require 'bundler'
-Bundler.require
+Bundler.setup
 
 require 'logger'
 require 'json'
+require 'dotenv'
+require 'sequel'
+require 'sinatra'
 
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
