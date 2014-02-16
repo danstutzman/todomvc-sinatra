@@ -109,6 +109,7 @@ DEPENDENCIES
   dotenv
   pg
   pry
+  rack-test
   rake
   rspec
   selenium-webdriver
