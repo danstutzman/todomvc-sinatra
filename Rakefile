@@ -332,11 +332,13 @@ task :unit_test_cov do
   ; cp -R test test-compiled
   ; coffee -c test-compiled
   ; perl -pi -e "s/require\\('..\\/app\\/(.*)\\.coffee'\\)/require\\('..\\/app-compiled\\/\\1.js'\\)/g" test-compiled/*.js
+  ; perl -pi -e "s/require\\('..\\/test\\/(.*)\\.coffee'\\)/require\\('..\\/test-compiled\\/\\1.js'\\)/g" test-compiled/*.js
   ; node_modules/.bin/istanbul cover
       node_modules/.bin/_mocha --
         -u exports
         -R spec
         test-compiled/SyncCommandTest.js
+        test-compiled/TodoFooterTest.js
   ; node_modules/.bin/istanbul report
   ; rm -rf app-compiled test-compiled
   ; open coverage/lcov-report/app-compiled/index.html

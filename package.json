@@ -24,7 +24,8 @@
     "exorcist": "~0.1.5",
     "istanbul": "~0.2.4",
     "xmlhttprequest": "~1.6.0",
-    "mocha": "~1.17.1"
+    "mocha": "~1.17.1",
+    "html": "0.0.7"
   },
   "engines": {
     "node": ">=0.8.0"

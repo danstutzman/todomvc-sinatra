@@ -1,3 +1,5 @@
+React = require 'react'
+
 type = React.PropTypes
 
 TodoFooter = React.createClass
