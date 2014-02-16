@@ -1,3 +1,5 @@
+React = require 'react'
+
 ESCAPE_KEY = 27
 ENTER_KEY  = 13
 type       = React.PropTypes
@@ -9,8 +11,9 @@ TodoItem = React.createClass
     doCommand: type.func.isRequired
 
   getInitialState: ->
-    isEditing: false
-    editText: @props.todo.title
+    @props.initialState or # Supply initialState for testing from node
+      isEditing: false
+      editText: @props.todo.title
 
   # warning: may be called twice
   handleSubmit: ->

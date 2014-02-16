@@ -1,12 +1,9 @@
 assert      = require 'assert'
-Deferred    = require 'deferred'
 prettyPrint = require('html').prettyPrint
-React       = require 'react'
 helper      = require '../test/helper.coffee'
 TodoFooter  = require '../app/TodoFooter.coffee'
 
 NOOP = ->
-NOOP() # for code coverage
 
 describe 'TodoFooter', ->
 

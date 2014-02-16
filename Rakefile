@@ -339,6 +339,7 @@ task :unit_test_cov do
         -R spec
         test-compiled/SyncCommandTest.js
         test-compiled/TodoFooterTest.js
+        test-compiled/TodoItemTest.js
   ; node_modules/.bin/istanbul report
   ; rm -rf app-compiled test-compiled
   ; open coverage/lcov-report/app-compiled/index.html
