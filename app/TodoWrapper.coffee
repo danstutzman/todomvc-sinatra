@@ -3,6 +3,7 @@ TodoApp           = require('./TodoApp.coffee')
 SimulateCommand   = require('./SimulateCommand.coffee')
 SyncCommand       = require('./SyncCommand.coffee')
 SyncedState       = require('./SyncedState.coffee')
+Ajax              = require('./Ajax.coffee')
 
 class TodoWrapper
 
@@ -12,7 +13,7 @@ class TodoWrapper
   constructor: (initialTodos, targetDiv) ->
     @syncedState = new SyncedState
       doSimulateCommand: SimulateCommand.doCommand
-      doSyncCommand: SyncCommand.doCommand
+      doSyncCommand: new SyncCommand(Ajax, 'http://localhost:9292').doCommand
       syncedState: initialTodos
     @nowShowing = 'all'
     @targetDiv = targetDiv

@@ -39,20 +39,20 @@ Ajax =
     query.join('&')
 
   get: (url, data) ->
-    data = @join_query(data) unless typeof(data) == 'string'
+    data = JSON.stringify(data) unless typeof(data) == 'string'
     url += '?' + data unless data == ''
     Ajax.send 'GET', url, null
 
   post: (url, data) ->
-    data = @join_query(data) unless typeof(data) == 'string'
+    data = JSON.stringify(data) unless typeof(data) == 'string'
     Ajax.send 'POST', url, data
 
   put: (url, data) ->
-    data = @join_query(data) unless typeof(data) == 'string'
+    data = JSON.stringify(data) unless typeof(data) == 'string'
     Ajax.send 'PUT', url, data
 
   delete: (url, data) ->
-    data = @join_query(data) unless typeof(data) == 'string'
+    data = JSON.stringify(data) unless typeof(data) == 'string'
     Ajax.send 'DELETE', url, data
 
 module.exports = Ajax
