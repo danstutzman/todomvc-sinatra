@@ -1,0 +1,24 @@
+---
+- hosts: git-server
+  user: root
+  gather_facts: false
+  tasks:
+  - group: name=git state=present
+  - user: name=git group=git shell=/bin/bash generate_ssh_key=yes
+  - authorized_key: user=git key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- hosts: git-server
+  user: git
+  gather_facts: false
+  tasks:
+  - command: mkdir /home/git/todomvc-sinatra-builds
+      creates=/home/git/todomvc-sinatra-builds
+  - command: git --bare init chdir=/home/git/todomvc-sinatra-builds
+      creates=/home/git/todomvc-sinatra-builds/HEAD
+  - command: git remote add jenkins /var/lib/jenkins/todomvc-sinatra-builds
+      chdir=/home/git/todomvc-sinatra-builds
+    ignore_errors: yes # ignore "fatal: remote jenkins already exists"
+  - command: git fetch jenkins chdir=/home/git/todomvc-sinatra-builds
+  - command: git branch master jenkins/master
+      chdir=/home/git/todomvc-sinatra-builds
+

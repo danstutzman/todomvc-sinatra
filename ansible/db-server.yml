@@ -1,0 +1,18 @@
+---
+- hosts: postgres-servers
+  user: root
+  gather_facts: false
+  tasks:
+  - apt: pkg={{item}} state=present
+    with_items:
+    - postgresql
+    - python-psycopg2 # required for postgresql_db ansible module
+  - authorized_key: user=postgres
+      key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- hosts: postgres-servers
+  user: postgres
+  gather_facts: false
+  tasks:
+  - postgresql_db: name=todomvc
+  - postgresql_user: db=todomvc name=todomvc password=todomvc
