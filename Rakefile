@@ -272,7 +272,7 @@ file 'dist/concat/vendor.js' => %w[
   app/bower_components/underscore/underscore-min.js
 ] do |task|
   mkdir_p 'dist/concat'
-  command = "cat #{task.prerequisites.join(' ')}"
+  command = "cat #{task.prerequisites.join(' app/semicolon.js ')}"
   create_with_sh command, task.name
 end
 
