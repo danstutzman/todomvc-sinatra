@@ -6,6 +6,7 @@ require 'rake'
 require 'open-uri'
 require 'dotenv/tasks'
 require 'logger'
+require 'dotenv'
 
 def create_with_sh(command, path)
   begin
