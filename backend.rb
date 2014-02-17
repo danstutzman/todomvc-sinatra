@@ -37,11 +37,11 @@ module TodomvcBackend
     use Rack::Logger
 
     get '/' do
-      `rake app/concat`
+      `rake app/concat` if RACK_ENV == 'development'
 
       todo_json = TodoItem.order(:id).all.to_json
 
-      html = File.read('app/index.html')
+      html = File.read("#{ENV['PUBLIC_DIR']}/index.html")
       html.sub! /var initialTodos = \[\];/, "var initialTodos = #{todo_json};"
       html
     end
