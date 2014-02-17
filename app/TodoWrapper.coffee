@@ -13,7 +13,7 @@ class TodoWrapper
   constructor: (initialTodos, targetDiv) ->
     @syncedState = new SyncedState
       doSimulateCommand: SimulateCommand.doCommand
-      doSyncCommand: new SyncCommand(Ajax, 'http://localhost:9292').doCommand
+      doSyncCommand: new SyncCommand(Ajax, '').doCommand
       syncedState: initialTodos
     @nowShowing = 'all'
     @targetDiv = targetDiv
