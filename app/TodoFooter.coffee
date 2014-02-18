@@ -4,6 +4,8 @@ type = React.PropTypes
 
 TodoFooter = React.createClass
 
+  displayName: 'TodoFooter'
+
   propTypes:
     count:          type.number.isRequired
     completedCount: type.number.isRequired

@@ -6,6 +6,8 @@ type       = React.PropTypes
 
 TodoItem = React.createClass
 
+  displayName: 'TodoItem'
+
   propTypes:
     todo:      type.object.isRequired
     doCommand: type.func.isRequired
