@@ -327,7 +327,18 @@ task :dist => %w[
   app/concat/bg.png
 ] do
   mkdir_p 'dist'
-  cp 'app/index.html', 'dist'
+
+  cp 'app/index.html', 'dist/index.html'
+  %w[all.css ie8.js vendor.js browserified.js].each do |filename|
+    new_filename = File.basename(
+      `node_modules/.bin/busta --file dist/concat/#{filename}`).strip
+    command = %W[
+      cat dist/index.html | sed "s/#{filename}/#{new_filename}/"
+      > dist/index.html.tmp
+      ; mv dist/index.html.tmp dist/index.html
+    ].join(' ')
+    sh command
+  end
 
   mkdir_p 'dist/concat'
   cp 'app/concat/bg.png',          'dist/concat/bg.png'
