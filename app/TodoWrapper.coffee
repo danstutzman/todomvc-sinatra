@@ -43,7 +43,10 @@ class TodoWrapper
         doCommand: @_doCommand
       @targetDiv)
     if err
-      console.error 'show this error to the user:', err
-      throw err
+      if err instanceof Error
+        console.error 'show this error to the user:'
+        throw err
+      else
+        console.error "called _render with non-Error first arg #{JSON.stringify(err)}"
 
 module.exports = TodoWrapper
