@@ -10,11 +10,11 @@ server {
   }
   location @proxy {
     proxy_read_timeout 150;
-    proxy_pass http://unix:{{home}}/{{app_name}}/shared/unicorn/unicorn.sock;
+    proxy_pass http://unix:{{home}}/todomvc-sinatra/shared/unicorn.sock;
   }
   location / {
     proxy_read_timeout 150;
-    proxy_pass http://unix:{{home}}/{{app_name}}/shared/unicorn/unicorn.sock;
+    proxy_pass http://unix:{{home}}/todomvc-sinatra/shared/unicorn.sock;
   }
 }
 

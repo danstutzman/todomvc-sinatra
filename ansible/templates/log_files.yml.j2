@@ -6,8 +6,13 @@ files:
   - /var/log/zabbix/zabbix_agentd.log
   - /var/log/zabbix/zabbix_server.log
   - /var/log/postgresql/postgresql-9.1-main.log
+  - /var/log/nginx/access.log
   - /var/log/nginx/error.log
+  - /home/deployer/todomvc-sinatra/shared/unicorn_error.log
+  - /var/log/nginx/todomvc_access_nginx.log
+  - /var/log/nginx/todomvc_error_nginx.log
 destination:
   host: logs.papertrailapp.com
   port: {{papertrail_port}}
 ssl_server_cert: /etc/syslog.papertrail.crt
+hostname: {{ansible_hostname}}

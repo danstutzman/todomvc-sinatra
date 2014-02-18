@@ -1,0 +1,65 @@
+---
+- hosts: web-servers
+  user: root
+  gather_facts: false
+  tasks:
+  - group: name={{username}} state=present
+  - user: name={{username}} group={{username}} shell=/bin/bash generate_ssh_key=yes
+  - fetch: src=/home/{{username}}/.ssh/id_rsa.pub dest=var/deployer.pub flat=yes
+  - authorized_key: user={{username}}
+      key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  - apt: pkg=nginx state=present
+  - action: file path=/etc/nginx/sites-enabled/default state=absent
+    notify: restart nginx
+  - template: src=templates/todomvc.conf.j2
+      dest=/etc/nginx/sites-available/{{app_name}}.conf
+    notify: restart nginx
+  - command: ln -s /etc/nginx/sites-available/{{app_name}}.conf /etc/nginx/sites-enabled/{{app_name}}.conf creates=/etc/nginx/sites-enabled/{{app_name}}.conf
+    notify: restart nginx
+  handlers:
+  - name: restart nginx
+    service: name=nginx state=restarted
+
+- hosts: git-server
+  user: root
+  gather_facts: false
+  tasks:
+  - authorized_key: user=git key="{{ lookup('file', 'var/deployer.pub') }}"
+
+- hosts: web-servers
+  user: root
+  gather_facts: false
+  tasks:
+  - shell: "mkdir {{item}}; chown {{username}}:{{username}} {{item}};
+      chmod 0755 {{item}}"
+    with_items:
+    - /home/deployer/todomvc-sinatra
+    - /home/deployer/todomvc-sinatra/shared
+    - /home/deployer/todomvc-sinatra/shared/pids
+    - /home/deployer/todomvc-sinatra/shared/log
+    - /home/deployer/todomvc-sinatra/releases
+  - apt: pkg=libpq-dev state=present
+
+- hosts: web-servers
+  user: root
+  gather_facts: false
+  tasks:
+  - command: "mkdir /etc/unicorn creates=/etc/unicorn"
+  - template: src=templates/unicorn dest=/etc/init.d/unicorn
+  - command: chmod 0755 /etc/init.d/unicorn
+  - service: name=unicorn enabled=yes
+  - template: src=templates/todomvc-unicorn.conf
+      dest=/etc/unicorn/todomvc.conf
+    notify: restart unicorn
+  - template: src=templates/todomvc.unicorn.rb
+      dest=/etc/unicorn/todomvc.unicorn.rb
+    notify: restart unicorn
+  handlers:
+  - name: restart unicorn
+    service: name=unicorn state=restarted pattern="unicorn master"
+
+- hosts: web-servers
+  user: "{{username}}"
+  gather_facts: false
+  tasks:
+  - command: "git clone ssh://git@107.170.23.62/home/git/todomvc-sinatra-builds /home/deployer/todomvc-sinatra/current creates=/home/deployer/todomvc-sinatra/current"
