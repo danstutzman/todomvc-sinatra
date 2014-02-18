@@ -123,11 +123,30 @@ file 'app/concat/ie8.js' => %w[
   create_with_sh command, task.name
 end
 
+file 'app/concat/deferred.js' do |task|
+  mkdir_p 'app/concat'
+  command = %W[
+    node_modules/.bin/browserify
+      --insert-global-vars ''
+      -r deferred
+  ].join(' ')
+  create_with_sh command, task.name
+end
+
+file 'app/concat/deferred-min.js' => 'app/concat/deferred.js' do |task|
+  command = %W[
+    node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
+      #{task.prerequisites.join(' ')}
+  ].join(' ')
+  create_with_sh command, task.name
+end
+
 file 'app/concat/vendor.js' => %w[
   app/bower_components/todomvc-common/base.js
   app/bower_components/react/react-with-addons.js
   app/bower_components/director/build/director.js
   app/bower_components/underscore/underscore.js
+  app/concat/deferred.js
 ] do |task|
   mkdir_p 'app/concat'
   command = "cat #{task.prerequisites.join(' ')}"
@@ -145,7 +164,7 @@ file 'app/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
     --insert-global-vars ''
     -d
     -r underscore -r react
-    -u xmlhttprequest
+    -u xmlhttprequest -u deferred
     #{dash_r_paths}
   ].join(' ')
   create_with_sh command, task.name
@@ -207,7 +226,7 @@ file 'test/concat/browserified-coverage.js' =>
     -t coffeeify
     -d
     -r underscore -r react
-    -u xmlhttprequest
+    -u xmlhttprequest -u deferred
     #{dash_r_paths}
     #{non_dash_r_paths}
   ].join(' ')
@@ -225,6 +244,7 @@ file 'test/concat/vendor.js' => %w[
   test/react-with-test-utils.js
   app/bower_components/director/build/director.js
   app/bower_components/underscore/underscore.js
+  app/concat/deferred.js
 ] do |task|
   mkdir_p 'test/concat'
   command = "cat #{task.prerequisites.join(' ')}"
@@ -270,6 +290,7 @@ file 'dist/concat/vendor.js' => %w[
   app/bower_components/react/react-with-addons.min.js
   app/bower_components/director/build/director.min.js
   app/bower_components/underscore/underscore-min.js
+  app/concat/deferred-min.js
 ] do |task|
   mkdir_p 'dist/concat'
   command = "cat #{task.prerequisites.join(' app/semicolon.js ')}"
@@ -288,7 +309,7 @@ file 'dist/concat/browserified.js' => Dir.glob('app/*.coffee') do |task|
       --insert-global-vars ''
       -d
       -r underscore -r react
-      -u xmlhttprequest
+      -u xmlhttprequest -u deferred
       #{dash_r_paths}
   | node
       node_modules/exorcist/bin/exorcist.js
