@@ -30,7 +30,7 @@
           if (typeof(require) === 'undefined') alert("Couldn't load browserified.js");
           var TodoWrapper = require('./app/TodoWrapper.coffee');
           var targetDiv = document.getElementById('todoapp');
-          new TodoWrapper(initialTodos, targetDiv).run();
+          new TodoWrapper(initialTodos, targetDiv, true).run();
         </script>
     </body>
 </html>

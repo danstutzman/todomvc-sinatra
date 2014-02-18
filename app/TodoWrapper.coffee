@@ -10,10 +10,11 @@ class TodoWrapper
 # TODO: give localhost:9292 url to SyncCommand
 # TODO: render server errors and response time
 
-  constructor: (initialTodos, targetDiv) ->
+  constructor: (initialTodos, targetDiv, syncOrNot) ->
+    sync = if syncOrNot then new SyncCommand(Ajax, '').doCommand else null
     @syncedState = new SyncedState
       doSimulateCommand: SimulateCommand.doCommand
-      doSyncCommand: new SyncCommand(Ajax, '').doCommand
+      doSyncCommand: sync
       syncedState: initialTodos
     @nowShowing = 'all'
     @targetDiv = targetDiv
