@@ -2,6 +2,7 @@
 - hosts: web-servers
   user: root
   gather_facts: false
+  tags: nginx
   tasks:
   - group: name={{username}} state=present
   - user: name={{username}} group={{username}} shell=/bin/bash generate_ssh_key=yes
