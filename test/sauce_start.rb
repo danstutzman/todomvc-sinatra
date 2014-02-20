@@ -17,7 +17,7 @@ post_data = {
   platforms: [LINUX_CHROME],
   url:       URL,
   framework: "jasmine",
-  name:      "Jasmine tests",
+  name:      "Jasmine tests for #{ENV['GIT_COMMIT'] || 'ad-hoc'}",
   build:     ENV['BUILD_NUMBER'], # will be set if run from Jenkins
 }
 
