@@ -17,6 +17,8 @@ post_data = {
   platforms: [LINUX_CHROME],
   url:       URL,
   framework: "jasmine",
+  name:      "Jasmine tests",
+  build:     ENV['BUILD_NUMBER'], # will be set if run from Jenkins
 }
 
 url = "https://saucelabs.com/rest/v1/#{ENV['SAUCE_USERNAME']}/js-tests"
