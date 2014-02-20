@@ -40,6 +40,9 @@ class SyncedState
     else # for testing purposes
       list
 
+  isStillSyncing: =>
+    @syncingCommands.length > 0
+
   simulateAndSyncCommand: (command) =>
     @simulatedState = @doSimulateCommand command, @simulatedState
 

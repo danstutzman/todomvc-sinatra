@@ -19,12 +19,16 @@ class TodoWrapper
     @nowShowing = 'all'
     @targetDiv = targetDiv
 
-  run: ->
+  run: =>
     router = Router
       '/':          => @nowShowing = 'all';       @_render()
       '/active':    => @nowShowing = 'active';    @_render()
       '/completed': => @nowShowing = 'completed'; @_render()
     router.init()
+    window.addEventListener 'beforeunload', =>
+      if @syncedState.isStillSyncing()
+        'Data is still being sent to the server; you may lose unsaved ' +
+        'changes if you close the page.'
     @_render()
 
   _doCommand: (name, args) =>
