@@ -5,6 +5,8 @@ require 'openssl'
 require 'pp'
 require 'json'
 
+URL = ARGV[0] or raise "For arg 1, provide URL to test"
+
 # ------------ Part 1: start the tests
 
 LINUX_CHROME = ["Linux", "googlechrome", ""]
@@ -13,7 +15,7 @@ MAC_CHROME   = ["OS X 10.9", "chrome", ""]
 
 post_data = {
   platforms: [LINUX_CHROME],
-  url:       "http://107.170.40.128:3000/test/",
+  url:       URL,
   framework: "jasmine",
 }
 

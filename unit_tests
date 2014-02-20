@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #TESTS="$@"
-TESTS="test/SyncCommandTest.coffee"
-node_modules/.bin/mocha -R spec --compilers coffee:coffee-script/register "$TESTS" "$@"
+TESTS="test/SyncCommandTest.coffee test/TodoFooterTest.coffee test/TodoItemTest.coffee test/SyncCommandTest.coffee"
+node_modules/.bin/mocha -R spec --reporter min --compilers coffee:coffee-script/register -w -b $TESTS "$@"

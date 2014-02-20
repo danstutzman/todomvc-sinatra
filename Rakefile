@@ -207,7 +207,8 @@ file 'test/concat/browserified-coverage.js' =>
   command = %W[
     rm -rf app-compiled app-istanbul
   ; cp -R app app-compiled
-  ; coffee -c app-compiled/*.coffee
+  ; node_modules/coffeeify/node_modules/coffee-script/bin/coffee
+      -c app-compiled/*.coffee
   ; rm -rf
       app-compiled/bower_components
       app-compiled/concat
@@ -391,20 +392,21 @@ task :unit_test_cov do
   sh command
 end
 
-task :sauce_test => 'test/concat' do
+task :sauce_test, [:web_server_ip] => 'test/concat' do |t, args|
+  raise "Call with web_server_ip argument" if args[:web_server_ip].nil?
+
   files_to_sync = %w[
     test/index.html
     test/bower_components/jasmine/lib/jasmine-core/jasmine.js
     test/bower_components/jasmine/lib/jasmine-core/jasmine.css
     test/bower_components/jasmine/lib/jasmine-core/jasmine-html.js
     test/bower_components/jasmine/lib/jasmine-core/boot.js
-    test/bower_components/jquery/jquery.js
     test/concat/vendor.js
     test/concat/browserified-coverage.js
     test/jsreporter_jasmine2.js
   ].join(' ')
-  sh "rsync -qvzr -e ssh -R --delete #{files_to_sync} deployer@deploy.do:/home/deployer/todomvc-test"
-  sh "ruby test/sauce_start.rb"
+  sh "rsync -vzr -e ssh -R --delete #{files_to_sync} deployer@#{args[:web_server_ip]}:/home/deployer/todomvc-test"
+  sh "ruby test/sauce_start.rb http://#{args[:web_server_ip]}:3000/test/"
 end
 
 namespace :db do
