@@ -15,7 +15,12 @@
   - template: src=templates/todomvc.conf.j2
       dest=/etc/nginx/sites-available/{{app_name}}.conf
     notify: restart nginx
+  - template: src=templates/todomvc-test.conf.j2
+      dest=/etc/nginx/sites-available/{{app_name}}-test.conf
+    notify: restart nginx
   - command: ln -s /etc/nginx/sites-available/{{app_name}}.conf /etc/nginx/sites-enabled/{{app_name}}.conf creates=/etc/nginx/sites-enabled/{{app_name}}.conf
+    notify: restart nginx
+  - command: ln -s /etc/nginx/sites-available/{{app_name}}-test.conf /etc/nginx/sites-enabled/{{app_name}}-test.conf creates=/etc/nginx/sites-enabled/{{app_name}}-test.conf
     notify: restart nginx
   handlers:
   - name: restart nginx

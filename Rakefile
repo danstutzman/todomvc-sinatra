@@ -391,6 +391,22 @@ task :unit_test_cov do
   sh command
 end
 
+task :sauce_test => 'test/concat' do
+  files_to_sync = %w[
+    test/index.html
+    test/bower_components/jasmine/lib/jasmine-core/jasmine.js
+    test/bower_components/jasmine/lib/jasmine-core/jasmine.css
+    test/bower_components/jasmine/lib/jasmine-core/jasmine-html.js
+    test/bower_components/jasmine/lib/jasmine-core/boot.js
+    test/bower_components/jquery/jquery.js
+    test/concat/vendor.js
+    test/concat/browserified-coverage.js
+    test/jsreporter_jasmine2.js
+  ].join(' ')
+  sh "rsync -qvzr -e ssh -R --delete #{files_to_sync} deployer@deploy.do:/home/deployer/todomvc-test"
+  sh "ruby test/sauce_start.rb"
+end
+
 namespace :db do
   task :sequel => :dotenv_default_dev do
     require 'sequel'
