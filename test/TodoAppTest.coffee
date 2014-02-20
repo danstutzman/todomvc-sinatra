@@ -125,7 +125,7 @@ describe 'TodoApp', ->
 
   it 'can start empty', =>
     setup []
-    expect(@li()).isLength 0
+    expect(@li()).isLength 1 # intentionally break build
 
   it 'can start with one todo', =>
     setup [title: 'test', completed: false]
