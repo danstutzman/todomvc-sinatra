@@ -2,7 +2,7 @@ assert      = require 'assert'
 prettyPrint = require('html').prettyPrint
 React       = require 'react'
 
-if typeof(document) == undefined
+if typeof(document) == 'undefined'
   assertRendersHtml = (reactComponent, done, expectedHtml) ->
     React.renderComponentToString reactComponent, (html) ->
       html = html.replace /data-reactid="(.*?)"/g, ''
