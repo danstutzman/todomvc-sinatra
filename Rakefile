@@ -364,19 +364,30 @@ task :unit_test_cov do
   ; coffee -c app-compiled
   ; cp -R test test-compiled
   ; coffee -c test-compiled
+  ; perl -pi -e "s/require\\('.\\/(.*)\\.coffee'\\)/require\\('.\\/\\1.js'\\)/g" app-compiled/*.js
   ; perl -pi -e "s/require\\('..\\/app\\/(.*)\\.coffee'\\)/require\\('..\\/app-compiled\\/\\1.js'\\)/g" test-compiled/*.js
   ; perl -pi -e "s/require\\('..\\/test\\/(.*)\\.coffee'\\)/require\\('..\\/test-compiled\\/\\1.js'\\)/g" test-compiled/*.js
   ; node_modules/.bin/istanbul cover
       node_modules/.bin/_mocha --
         -u exports
         -R spec
-        test-compiled/SyncCommandTest.js
+        -r app-compiled/TodoItem.js
+        -r app-compiled/TodoWrapper.js
+        -r app-compiled/TodoApp.js
+        -r app-compiled/TodoFooter.js
+        -r app-compiled/Ajax.js
+        -r app-compiled/SimulateCommand.js
+        -r app-compiled/SyncCommand.js
+        -r app-compiled/SyncedState.js
+        test-compiled/TodoItemTest.js
         test-compiled/TodoFooterTest.js
         test-compiled/TodoItemTest.js
+        test-compiled/SyncCommandTest.js
+        test-compiled/SyncedStateTest.js
   ; node_modules/.bin/istanbul report
   ; rm -rf app-compiled test-compiled
   ; open coverage/lcov-report/app-compiled/index.html
-  ].join(' ')
+  ].join(' ') # Leave out TodoAppTest.js since it requires browser
   sh command
 end
 

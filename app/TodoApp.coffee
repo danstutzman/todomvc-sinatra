@@ -1,4 +1,5 @@
 _              = require('underscore')
+React          = require('react')
 TodoItem       = require('./TodoItem.coffee')
 TodoFooter     = require('./TodoFooter.coffee')
 
