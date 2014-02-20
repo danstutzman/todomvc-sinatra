@@ -13,11 +13,12 @@ LINUX_CHROME = ["Linux", "googlechrome", ""]
 WINXP_IE8    = ["Windows XP", "Internet Explorer", "8"]
 MAC_CHROME   = ["OS X 10.9", "chrome", ""]
 
+sha = ENV['GIT_COMMIT'] ? ENV['GIT_COMMIT'][0...7] : 'ad-hoc'
 post_data = {
   platforms: [LINUX_CHROME],
   url:       URL,
   framework: "jasmine",
-  name:      "Jasmine tests for #{ENV['GIT_COMMIT'] || 'ad-hoc'}",
+  name:      "Jasmine tests for #{sha}",
   build:     ENV['BUILD_NUMBER'], # will be set if run from Jenkins
 }
 
