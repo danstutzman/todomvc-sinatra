@@ -12,7 +12,11 @@ if typeof(document) == 'undefined'
       done()
 else
   assertRendersHtml = (reactComponent, done, expectedHtml) ->
-    console.log 'Skipping React.renderComponentToString in browser'
+    div = document.createElement('div')
+    body = window.document.getElementsByTagName('body')[0]
+    body.appendChild(div)
+    React.renderComponent reactComponent, div
+    div.parentNode.removeChild div
     done()
 
 module.exports = { assertRendersHtml }
