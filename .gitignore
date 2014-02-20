@@ -6,6 +6,5 @@
 /test/concat/browserified-coverage.js
 /test/concat/vendor.js
 /dist
-/sauce_connect.log
 /ansible/var
 /lcov-report
