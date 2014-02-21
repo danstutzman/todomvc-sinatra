@@ -3,3 +3,7 @@ cd `dirname $0`
 ANSIBLE_BIN=~/dev/ansible/bin
 $ANSIBLE_BIN/ansible-playbook -i var/inventory "$@"
 rm -f ~/*.retry
+FOREGROUND=$(osascript -e 'tell application "System Events"' -e 'set frontApp to name of first application process whose frontmost is true' -e 'end tell')
+if [ "$FOREGROUND" != "iTerm" ]; then
+  terminal-notifier -message "Ansible finished"
+fi
