@@ -12,10 +12,12 @@ URL = ARGV[0] or raise "For arg 1, provide URL to test"
 LINUX_CHROME = ["Linux", "googlechrome", ""]
 WINXP_IE8    = ["Windows XP", "Internet Explorer", "8"]
 MAC_CHROME   = ["OS X 10.9", "chrome", ""]
+MAC_SAFARI   = ["OS X 10.9", "safari", ""]
+WIN7_FIREFOX = ["Windows 7", "firefox", ""]
 
 sha = ENV['GIT_COMMIT'] ? ENV['GIT_COMMIT'][0...7] : 'ad-hoc'
 post_data = {
-  platforms: [WINXP_IE8],
+  platforms: [WINXP_IE8, WIN7_FIREFOX, MAC_SAFARI],
   url:       URL,
   framework: "jasmine",
   name:      "Jasmine tests for #{sha}",
