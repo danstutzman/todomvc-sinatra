@@ -1,0 +1,70 @@
+---
+- hosts: jenkins-server
+  user: root
+  gather_facts: true
+  tasks:
+  - name: Install python-software-properties
+    action: ${ansible_pkg_mgr} pkg=python-software-properties state=installed update-cache=yes
+  - name: Add jenkins apt-key
+    action: apt_key url={{ jenkins.deb.key }} state=present
+  - name: Add Jenkins repository
+    action: apt_repository repo='{{ jenkins.deb.repo }}' state=present
+  - name: Install dependencies
+    action: ${ansible_pkg_mgr} pkg={{ item }} state=installed update-cache=yes
+    with_items: jenkins.deb.dependencies
+  - name: Install Jenkins
+    action: ${ansible_pkg_mgr} pkg=jenkins state=latest update-cache=yes
+    register: jenkins_install
+  - name: "Create Jenkins CLI destination directory: ${jenkins.dest}"
+    action: file path={{ jenkins.dest }} state=directory
+  - name: Wait for Jenkins CLI to be accessible
+    command: sleep 60
+  - name: Get Jenkins CLI
+    action: get_url url=http://localhost:8080/jnlpJars/jenkins-cli.jar dest={{ jenkins.cli_dest }} mode=0440
+
+  - get_url: url=https://repo.eclipse.org/content/groups/releases//org/eclipse/jgit/org.eclipse.jgit.pgm/3.2.0.201312181205-r/org.eclipse.jgit.pgm-3.2.0.201312181205-r.sh dest=/usr/local/bin/jgit
+  - shell: chmod +x /usr/local/bin/jgit
+  - template: src=~/.jgit_s3_jenkins dest=~/.jgit_s3_jenkins
+  - shell: chmod 600 ~/.jgit_s3_jenkins
+  - authorized_key: user=jenkins
+                    key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  - shell: chmod 0644 /opt/jenkins/jenkins-cli.jar
+
+  - apt: pkg={{item}} state=present
+    with_items:
+    - heirloom-mailx
+    - sendmail
+    - libpq-dev # needed to install pg gem
+  - user: name=jenkins shell=/bin/bash generate_ssh_key=yes
+      ssh_key_comment=jenkins@{{ansible_hostname}}
+  - fetch: src=/var/lib/jenkins/.ssh/id_rsa.pub dest=var/jenkins.pub flat=yes
+
+  - local_action: shell echo "{{ansible_default_ipv4.address}}" > var/jenkins.ip
+
+- hosts: jenkins-server
+  user: jenkins
+  gather_facts: false
+  tags: builds
+  tasks:
+  - template: src=~/.jgit_s3_jenkins dest=~/.jgit_s3_jenkins
+  - shell: chmod 600 ~/.jgit_s3_jenkins
+  - shell: "git init; git remote add s3 amazon-s3://.jgit_s3_jenkins@jenkins.git.danielstutzman.com/; jgit fetch s3; git reset --hard s3/master; java -jar /opt/jenkins/jenkins-cli.jar -s http://localhost:8080/ restart creates=.git"
+  - debug: "msg=\"MANUAL STEP: Add 'Jenkins (Git plugin)' plugin with URL of http://IP-ADDRESS-HERE:8080 and active=true to https://github.com/danielstutzman/todomvc-sinatra/settings/hooks\""
+  - command: mkdir /var/lib/jenkins/todomvc-sinatra-builds
+      creates=/var/lib/jenkins/todomvc-sinatra-builds
+  - shell: "git init; git remote add s3 amazon-s3://.jgit_s3_jenkins@todomvc-sinatra-builds.git.danielstutzman.com/; jgit fetch s3; git merge s3/master; git remote add bare ssh://git@{{lookup('file', 'var/jenkins.ip'}}/home/git/todomvc-sinatra-builds chdir=/var/lib/jenkins/todomvc-sinatra-builds creates=var/lib/jenkins/todomvc-sinatra-builds/.git"
+  - command: git push bare master chdir=/var/lib/jenkins/todomvc-sinatra-builds
+
+- hosts: jenkins-server
+  user: jenkins
+  gather_facts: false
+  tags: env
+  tasks:
+  - command: touch /var/lib/jenkins/env.properties
+      creates=/var/lib/jenkins/env.properties
+  - lineinfile: dest=/var/lib/jenkins/env.properties
+      regexp="^SAUCE_USERNAME="
+      line="SAUCE_USERNAME={{lookup('env','SAUCE_USERNAME')}}"
+  - lineinfile: dest=/var/lib/jenkins/env.properties
+      regexp="^SAUCE_ACCESS_KEY="
+      line="SAUCE_ACCESS_KEY={{lookup('env','SAUCE_ACCESS_KEY')}}"

@@ -4,8 +4,9 @@
   gather_facts: false
   tasks:
   - group: name=git state=present
-  - user: name=git group=git shell=/bin/bash generate_ssh_key=yes
+  - user: name=git group=git shell=/bin/bash
   - authorized_key: user=git key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  - authorized_key: user=git key="{{ lookup('file', 'var/jenkins.pub') }}"
 
 - hosts: git-server
   user: git
@@ -22,3 +23,9 @@
   - command: git branch master jenkins/master
       chdir=/home/git/todomvc-sinatra-builds
 
+- hosts: jenkins-server
+  user: jenkins
+  gather_facts: true # for ip addr
+  tasks:
+  - command: ssh -o StrictHostKeyChecking=no
+      git@{{ansible_default_ipv4.address}} echo

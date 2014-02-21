@@ -1,19 +1,18 @@
 ---
-# gotta pull from git until I get authorized_keys setup to push from jenkins
-- hosts: jenkins-server
-  user: git
-  gather_facts: false
-  tasks:
-  - command: "git fetch jenkins master:master
-      chdir=/home/git/todomvc-sinatra-builds"
+# bundle install needs ruby 2 installed by base.yml
+# bundle install needs db-server.yml
 
 - hosts: web-servers
   user: "{{username}}"
   gather_facts: false
   tasks:
-  - command: "git pull origin master chdir=/home/deployer/todomvc-sinatra/current"
-  - command: "bundle install --deployment --path /home/deployer/todomvc-sinatra/shared/vendor_bundle chdir=/home/deployer/todomvc-sinatra/current"
-  - shell: "RACK_ENV=production bundle exec rake db:migrate chdir=/home/deployer/todomvc-sinatra/current"
+  - command: git pull origin master
+      chdir=/home/deployer/todomvc-sinatra/current
+  - command: bundle install --deployment
+      --path /home/deployer/todomvc-sinatra/shared/vendor_bundle
+      chdir=/home/deployer/todomvc-sinatra/current
+  - shell: RACK_ENV=production bundle exec rake db:migrate
+      chdir=/home/deployer/todomvc-sinatra/current
 
 - hosts: web-servers
   user: root

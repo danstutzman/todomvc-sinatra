@@ -1,11 +1,12 @@
 ---
 - hosts: web-servers
   user: root
-  gather_facts: false
+  gather_facts: true # for ansible_hostname
   tags: nginx
   tasks:
   - group: name={{username}} state=present
-  - user: name={{username}} group={{username}} shell=/bin/bash generate_ssh_key=yes
+  - user: name={{username}} group={{username}} shell=/bin/bash
+      generate_ssh_key=yes ssh_key_comment={{username}}@{{ansible_hostname}}
   - fetch: src=/home/{{username}}/.ssh/id_rsa.pub dest=var/deployer.pub flat=yes
   - authorized_key: user={{username}}
       key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
@@ -44,6 +45,7 @@
     - /home/deployer/todomvc-sinatra/shared/pids
     - /home/deployer/todomvc-sinatra/shared/log
     - /home/deployer/todomvc-sinatra/releases
+    - /home/deployer/todomvc-sinatra/current
   - apt: pkg=libpq-dev state=present
 
 - hosts: web-servers
@@ -67,5 +69,12 @@
 - hosts: web-servers
   user: "{{username}}"
   gather_facts: false
+  tags: git-clone
   tasks:
-  - command: "git clone ssh://git@107.170.23.62/home/git/todomvc-sinatra-builds /home/deployer/todomvc-sinatra/current creates=/home/deployer/todomvc-sinatra/current"
+  - command: ssh -o StrictHostKeyChecking=no
+      git@{{lookup('file', 'var/jenkins.ip')}} echo
+  - shell: "git clone
+      ssh://git@{{lookup('file', 'var/jenkins.ip')}}/home/git/todomvc-sinatra-builds
+      /home/deployer/todomvc-sinatra/current"
+  - authorized_key: user={{username}}
+     key="{{ lookup('file', 'var/jenkins.pub') }}"
