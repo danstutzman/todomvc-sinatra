@@ -43,7 +43,7 @@ describe 'SyncCommand', ->
       assert.equal path, '/todos'
       assert.deepEqual data, { x:2 }
       '{"x":2,"id":-2}'
-    promise = sync.create_todo(cid:2, x:2, [F1]).done (todos) ->
+    sync.create_todo(cid:2, x:2, [F1]).end (todos) ->
       assert.deepEqual todos, [F1, F2]
       done()
 
@@ -52,7 +52,7 @@ describe 'SyncCommand', ->
       assert.equal method, 'DELETE'
       assert.equal path, '/todos/-1'
       'ok'
-    promise = sync.delete_todo(cid:1, [F1, F2]).done (todos) ->
+    promise = sync.delete_todo(cid:1, [F1, F2]).end (todos) ->
       assert.deepEqual todos, [F2]
       done()
 
@@ -61,7 +61,7 @@ describe 'SyncCommand', ->
       assert.equal method, 'PUT'
       assert.equal path, '/todos/-1'
       '{"x":11,"id":-1}'
-    sync.set_on_todo(cid:1, x:11, [F1, F2]).done (todos) ->
+    sync.set_on_todo(cid:1, x:11, [F1, F2]).end (todos) ->
       assert.deepEqual todos, [{ cid:1, x:11, id:-1 }, F2]
       done()
 
@@ -70,7 +70,7 @@ describe 'SyncCommand', ->
       assert.equal method, 'PUT'
       assert.equal path, '/todos'
       '[{"x":9,"id":-1},{"x":9,"id":-2}]'
-    sync.set_on_all_todos(x:9, [F1, F2]).done (todos) ->
+    sync.set_on_all_todos(x:9, [F1, F2]).end (todos) ->
       assert.deepEqual todos, [{ cid:1, x:9, id:-1 }, { cid:2, x:9, id:-2 }]
       done()
 
@@ -85,6 +85,6 @@ describe 'SyncCommand', ->
     todos = [{ cid:1, completed:false, id:-1 },
              { cid:2, completed:true,  id:-2 },
              { cid:3, completed:true,  id:-3 }]
-    sync.delete_completed_todos({}, todos).done (todos) ->
+    sync.delete_completed_todos({}, todos).end (todos) ->
       assert.deepEqual todos, [{ cid:1, completed:false, id:-1 }]
       done()

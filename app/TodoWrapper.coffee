@@ -25,17 +25,23 @@ class TodoWrapper
       '/active':    => @nowShowing = 'active';    @_render()
       '/completed': => @nowShowing = 'completed'; @_render()
     router.init()
-    window.addEventListener 'beforeunload', =>
+    @_addBeforeUnload =>
       if @syncedState.isStillSyncing()
         'Data is still being sent to the server; you may lose unsaved ' +
         'changes if you close the page.'
     @_render()
 
+  _addBeforeUnload: (handler) =>
+    if window.attachEvent # IE8
+      window.attachEvent 'onbeforeunload', handler
+    else
+      window.addEventListener 'beforeunload', handler
+
   _doCommand: (name, args) =>
     command = args || {}
     command.name = name
     promise = @syncedState.simulateAndSyncCommand(command)
-    promise.done @_render, @_render
+    promise.end @_render, @_render
 
     @_render() # to show results of simulation
 

@@ -33,7 +33,7 @@ describe 'SyncedState', ->
         assert.equal syncedState, 0
         server1.promise
       syncedState: 0
-    state.simulateAndSyncCommand(name: 'increment').done ->
+    state.simulateAndSyncCommand(name: 'increment').end ->
       assert.equal state.simulatedState, 1
       done()
     assert.equal state.simulatedState, -1
@@ -47,7 +47,7 @@ describe 'SyncedState', ->
         assert.equal syncedState, 0
         server1.promise
       syncedState: 0
-    state.simulateAndSyncCommand(name: 'increment').done null, (err) ->
+    state.simulateAndSyncCommand(name: 'increment').end null, (err) ->
       assert.equal state.simulatedState, 0
       done()
     assert.equal state.simulatedState, -1
@@ -64,7 +64,7 @@ describe 'SyncedState', ->
       syncedState: 0
 
     part1 = PromisedPart (done) ->
-      state.simulateAndSyncCommand(name: 'increment').done ->
+      state.simulateAndSyncCommand(name: 'increment').end ->
         assert.equal state.simulatedState, 1
         done()
       server1.resolve 1
@@ -74,12 +74,12 @@ describe 'SyncedState', ->
       state.doSyncCommand = (command, syncedState) ->
         assert.equal syncedState, 1
         server2.promise
-      state.simulateAndSyncCommand(name: 'increment').done ->
+      state.simulateAndSyncCommand(name: 'increment').end ->
         assert.equal state.simulatedState, 2
         done()
       server2.resolve 2
 
-    Deferred().resolve().then(part1).then(part2).done(done)
+    Deferred().resolve().then(part1).then(part2).end(done)
 
   it 'queues 1, queues 2, resolves 1, resolves 2', (done) ->
     server1 = new Deferred()
@@ -92,14 +92,14 @@ describe 'SyncedState', ->
         server1.promise
       syncedState: 0
 
-    state.simulateAndSyncCommand(name: 'do1').done ->
+    state.simulateAndSyncCommand(name: 'do1').end ->
       assert.equal state.simulatedState, -2 # NOT 1, because we still have 2 queued
     state.doSimulateCommand = -> -2
     state.doSyncCommand = (command, syncedState) ->
       assert.equal syncedState, 1
       assert.deepEqual @syncingCommands, [{ name: 'do2' }]
       server2.promise
-    state.simulateAndSyncCommand(name: 'do2').done ->
+    state.simulateAndSyncCommand(name: 'do2').end ->
       assert.equal state.simulatedState, 2
       done()
     server1.resolve 1
@@ -116,7 +116,7 @@ describe 'SyncedState', ->
         server1.promise
       syncedState: 0
 
-    state.simulateAndSyncCommand(name: 'do1').done ->
+    state.simulateAndSyncCommand(name: 'do1').end ->
       assert.equal state.syncedState, 1
       assert.equal state.simulatedState, -2 # NOT 1, because we still have 2 queued
 
@@ -125,7 +125,7 @@ describe 'SyncedState', ->
       assert.equal syncedState, 0 # STILL at 0
       assert.deepEqual @syncingCommands, [{ name: 'do2' }]
       server2.promise
-    state.simulateAndSyncCommand(name: 'do2').done null, (err) ->
+    state.simulateAndSyncCommand(name: 'do2').end null, (err) ->
       assert.equal state.syncedState, 1 # it reverted to 1
       assert.equal state.simulatedState, 1 # it reverted to 1
       done()
@@ -141,11 +141,11 @@ describe 'SyncedState', ->
         server1.promise
       syncedState: 0
 
-    state.simulateAndSyncCommand(name: 'do1').done null, (err) ->
+    state.simulateAndSyncCommand(name: 'do1').end null, (err) ->
       assert.equal state.simulatedState, 0 # rollback
     state.doSimulateCommand = -> -2
     state.doSyncCommand = -> assert false # never happens
-    state.simulateAndSyncCommand(name: 'do2').done null, (err) ->
+    state.simulateAndSyncCommand(name: 'do2').end null, (err) ->
       assert.equal state.simulatedState, 0 # not applied either
       done()
     assert.equal state.simulatedState, -2
@@ -162,7 +162,7 @@ describe 'SyncedState', ->
         server1.promise
       syncedState: 0
 
-    state.simulateAndSyncCommand(name: 'do1').done null, (err) ->
+    state.simulateAndSyncCommand(name: 'do1').end null, (err) ->
       assert.equal state.simulatedState, 0 # rollback
     server1.reject Error('server error')
 
@@ -170,7 +170,7 @@ describe 'SyncedState', ->
     state.doSyncCommand = (command, syncedState) ->
       assert.deepEqual @syncingCommands, [{ name: 'do2' }]
       server2.promise
-    state.simulateAndSyncCommand(name: 'do2').done ->
+    state.simulateAndSyncCommand(name: 'do2').end ->
       assert.equal state.simulatedState, 2
       done()
     server2.resolve 2

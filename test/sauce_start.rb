@@ -15,7 +15,7 @@ MAC_CHROME   = ["OS X 10.9", "chrome", ""]
 
 sha = ENV['GIT_COMMIT'] ? ENV['GIT_COMMIT'][0...7] : 'ad-hoc'
 post_data = {
-  platforms: [LINUX_CHROME],
+  platforms: [WINXP_IE8],
   url:       URL,
   framework: "jasmine",
   name:      "Jasmine tests for #{sha}",

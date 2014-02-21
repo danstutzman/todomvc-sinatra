@@ -2,9 +2,7 @@
 .*.swp
 /app/bower_components
 /app/concat
-/test/concat/browserified.js
-/test/concat/browserified-coverage.js
-/test/concat/vendor.js
+/test/concat
 /dist
 /ansible/var
 /lcov-report

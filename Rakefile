@@ -125,10 +125,13 @@ end
 
 file 'app/concat/deferred.js' do |task|
   mkdir_p 'app/concat'
+  # calls to sed are to fix bug with IE8 reserved words
   command = %W[
     node_modules/.bin/browserify
       --insert-global-vars ''
       -r deferred
+  | sed 's/continue/continue_/g'
+  | sed 's/finally/finally_/g'
   ].join(' ')
   create_with_sh command, task.name
 end
@@ -142,7 +145,6 @@ file 'app/concat/deferred-min.js' => 'app/concat/deferred.js' do |task|
 end
 
 file 'app/concat/vendor.js' => %w[
-  app/bower_components/todomvc-common/base.js
   app/bower_components/react/react-with-addons.js
   app/bower_components/director/build/director.js
   app/bower_components/underscore/underscore.js
@@ -182,6 +184,10 @@ file 'app/concat' => %w[
   app/concat/browserified.js
   app/concat/bg.png
 ]
+
+file 'test/concat/ie8.js' => 'app/concat/ie8.js' do |task|
+  copy task.prerequisites.first, task.name
+end
 
 # How to write new patch files (to fix <100% test coverage):
 # - Remove line that does rm -rf app-compiled
@@ -241,7 +247,6 @@ file 'test/concat/browserified-coverage.js' =>
 end
 
 file 'test/concat/vendor.js' => %w[
-  app/bower_components/todomvc-common/base.js
   test/react-with-test-utils.js
   app/bower_components/director/build/director.js
   app/bower_components/underscore/underscore.js
@@ -254,7 +259,7 @@ end
 
 # need to generate app/concat/ie8.js because test/concat/ie8.js symlinks to it
 file 'test/concat' => %w[
-  app/concat/ie8.js
+  test/concat/ie8.js
   test/concat/vendor.js
   test/concat/browserified-coverage.js
 ]
@@ -269,15 +274,6 @@ file 'dist/concat/all.css' => ['app/concat/all.css'] do |task|
   create_with_sh command, task.name
 end
 
-file 'app/bower_components/todomvc-common/base.min.js' =>
-     'app/bower_components/todomvc-common/base.js' do |task|
-  command = %W[
-    node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
-    #{task.prerequisites.join(' ')}
-  ].join(' ')
-  create_with_sh command, task.name
-end
-
 file 'dist/concat/ie8.js' => 'app/concat/ie8.js' do |task|
   command = %W[
     node_modules/uglifyify/node_modules/uglify-js/bin/uglifyjs
@@ -287,7 +283,6 @@ file 'dist/concat/ie8.js' => 'app/concat/ie8.js' do |task|
 end
 
 file 'dist/concat/vendor.js' => %w[
-  app/bower_components/todomvc-common/base.min.js
   app/bower_components/react/react-with-addons.min.js
   app/bower_components/director/build/director.min.js
   app/bower_components/underscore/underscore-min.js
@@ -401,6 +396,7 @@ task :sauce_test, [:web_server_ip] => 'test/concat' do |t, args|
     test/bower_components/jasmine/lib/jasmine-core/jasmine.css
     test/bower_components/jasmine/lib/jasmine-core/jasmine-html.js
     test/bower_components/jasmine/lib/jasmine-core/boot.js
+    test/concat/ie8.js
     test/concat/vendor.js
     test/concat/browserified-coverage.js
     test/jsreporter_jasmine2.js
