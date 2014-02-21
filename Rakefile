@@ -186,6 +186,7 @@ file 'app/concat' => %w[
 ]
 
 file 'test/concat/ie8.js' => 'app/concat/ie8.js' do |task|
+  mkdir_p 'test/concat'
   copy task.prerequisites.first, task.name
 end
 
