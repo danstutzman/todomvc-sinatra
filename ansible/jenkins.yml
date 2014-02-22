@@ -42,6 +42,11 @@
 
   - local_action: shell echo "{{ansible_default_ipv4.address}}" > var/jenkins.ip
 
+  - lineinfile: dest=/etc/default/jenkins
+      insertafter='^JAVA_ARGS='
+      regexp='^JAVA_ARGS="$JAVA_ARGS -Duser.timezone='
+      line='JAVA_ARGS="$JAVA_ARGS -Duser.timezone={{timezone}}"'
+
 - hosts: jenkins-server
   user: jenkins
   gather_facts: false
