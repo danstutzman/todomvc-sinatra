@@ -35,6 +35,7 @@
     - heirloom-mailx
     - sendmail
     - libpq-dev # needed to install pg gem
+    - ansible # needed to deploy to itself
   - user: name=jenkins shell=/bin/bash generate_ssh_key=yes
       ssh_key_comment=jenkins@{{ansible_hostname}}
   - fetch: src=/var/lib/jenkins/.ssh/id_rsa.pub dest=var/jenkins.pub flat=yes
@@ -68,3 +69,5 @@
   - lineinfile: dest=/var/lib/jenkins/env.properties
       regexp="^SAUCE_ACCESS_KEY="
       line="SAUCE_ACCESS_KEY={{lookup('env','SAUCE_ACCESS_KEY')}}"
+  - template: src=templates/localhost-inventory
+      dest=/var/lib/jenkins/localhost-inventory

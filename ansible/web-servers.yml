@@ -62,6 +62,9 @@
   - template: src=templates/todomvc.unicorn.rb
       dest=/etc/unicorn/todomvc.unicorn.rb
     notify: restart unicorn
+  - template: src=templates/deployer_restarts_unicorn.sudoers
+      dest=/etc/sudoers.d/deployer_restarts_unicorn
+  - command: chmod 0440 /etc/sudoers.d/deployer_restarts_unicorn
   handlers:
   - name: restart unicorn
     service: name=unicorn state=restarted pattern="unicorn master"
@@ -78,3 +81,9 @@
       /home/deployer/todomvc-sinatra/current"
   - authorized_key: user={{username}}
      key="{{ lookup('file', 'var/jenkins.pub') }}"
+
+- hosts: jenkins-server
+  user: jenkins
+  gather_facts: false
+  tasks:
+  - command: ssh -o StrictHostKeyChecking=no {{username}}@localhost echo

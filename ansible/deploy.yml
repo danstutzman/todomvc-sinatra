@@ -13,10 +13,4 @@
       chdir=/home/deployer/todomvc-sinatra/current
   - shell: RACK_ENV=production bundle exec rake db:migrate
       chdir=/home/deployer/todomvc-sinatra/current
-
-- hosts: web-servers
-  user: root
-  gather_facts: false
-  tags: restart
-  tasks:
-  - command: service unicorn restart
+  - command: sudo service unicorn restart
