@@ -29,7 +29,8 @@ describe 'TodoMVC', type: :feature, js: true do
   end
   it 'edits a todo when you double-click and type something new' do
     find('#new-todo').set("before\n")
-    all('#todo-list li')[0].find('label').double_click
+    label = all('#todo-list li')[0].find('label')
+    page.driver.browser.mouse.double_click(label.native)
     page.driver.browser.keyboard.send_keys :end, "after\n"
     all('#todo-list li')[0].find('label').text.should == 'beforeafter'
   end
@@ -61,9 +62,5 @@ describe 'TodoMVC', type: :feature, js: true do
     find('#toggle-all').click
     # IE8: execute_script("$('#toggle-all').click()")
     all('#todo-list li.completed').size.should == 0
-  end
-
-  after(:each) do
-    execute_script 'localStorage.clear()'
   end
 end

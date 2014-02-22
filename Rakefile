@@ -79,14 +79,14 @@ task :spec_vm => [:dotenv_default_test, :env_for_selenium_remote,
 
 task :env_for_selenium_sauce do
   ENV['REMOTE']            = 'true'
-  ENV['SELENIUM_HOST']     = 'localhost'
-  ENV['SELENIUM_PORT']     = '4445'
-  ENV['SELENIUM_BROWSER']  = 'internet explorer'
-  ENV['SELENIUM_PLATFORM'] = 'Windows XP'
-  ENV['SELENIUM_VERSION']  = '8'
-  ENV['BROWSER_URL']       = 'http://localhost:3000/'
-  ENV['SAUCE_USER_NAME'] or raise "No ENV[SAUCE_USER_NAME]"
-  ENV['SAUCE_API_KEY']   or raise "No ENV[SAUCE_API_KEY]"
+  ENV['SELENIUM_HOST']     = 'ondemand.saucelabs.com'
+  ENV['SELENIUM_PORT']     = '4444'
+  ENV['SELENIUM_BROWSER']  = 'googlechrome'
+  ENV['SELENIUM_PLATFORM'] = 'linux'
+  ENV['SELENIUM_VERSION']  = ''
+  ENV['BROWSER_URL']       = 'http://107.170.40.128/'
+  ENV['SAUCE_USERNAME']    or raise "No ENV[SAUCE_USERNAME]"
+  ENV['SAUCE_ACCESS_KEY']  or raise "No ENV[SAUCE_ACCESS_KEY]"
   ENV['RACK_ENV'] = 'test' # so database is correct
 end
 
@@ -339,19 +339,6 @@ task :dist => %w[
 
   mkdir_p 'dist/concat'
   cp 'app/concat/bg.png',          'dist/concat/bg.png'
-end
-
-task :sauce_connect do
-  sauce_user_name = ENV['SAUCE_USER_NAME'] or raise "No ENV[SAUCE_USER_NAME]"
-  sauce_api_key   = ENV['SAUCE_API_KEY']   or raise "No ENV[SAUCE_API_KEY]"
-  command = %W[
-    java
-    -jar test/Sauce-Connect/Sauce-Connect.jar
-    -d
-    #{sauce_user_name}
-    #{sauce_api_key}
-  ].join(' ')
-  sh command
 end
 
 task :unit_test_cov do

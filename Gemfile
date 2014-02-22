@@ -21,6 +21,8 @@ end
 group :test do
   gem 'rspec'
   gem 'selenium-webdriver'
+  gem 'capybara'
+  gem 'pry'
   gem 'yarjuf' # JUnit RSpec formatter for Jenkins
   gem 'database_cleaner'
   gem 'rack-test', require: 'rack/test'

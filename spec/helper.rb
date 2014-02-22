@@ -20,8 +20,8 @@ if ENV['REMOTE'] == 'true'
     'ENV[SELENIUM_PLATFORM] should be mac, windows, Windows XP, ANY, etc.'
   caps[:version]     = ENV['SELENIUM_VERSION'] # blank, 6
   caps[:javascript_enabled] = true # so we don't get non-js htmlunit driver
-  caps[:username]    = ENV['SAUCE_USER_NAME']
-  caps[:accessKey]   = ENV['SAUCE_API_KEY']
+  caps[:username]    = ENV['SAUCE_USERNAME']
+  caps[:accessKey]   = ENV['SAUCE_ACCESS_KEY']
   caps[:name]        = ARGV[0]
   selenium_host = ENV['SELENIUM_HOST'] or raise "No ENV[SELENIUM_HOST]"
   selenium_port = ENV['SELENIUM_PORT'] or raise "No ENV[SELENIUM_PORT]"
@@ -36,6 +36,7 @@ else
   Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new app, browser: browser
   end
+  ENV['BROWSER_URL'] = 'http://localhost:3000'
 end
 Capybara.javascript_driver = :selenium
 Capybara.default_driver = :selenium
