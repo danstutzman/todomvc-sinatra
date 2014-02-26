@@ -2,7 +2,7 @@ _ = require('underscore')
 
 SimulateCommand =
 
-  doCommand: (command, todos) =>
+  doCommand: (command, todos) ->
     name = command.name
     args = command
     if SimulateCommand[name]
@@ -33,7 +33,7 @@ SimulateCommand =
         todo
 
   delete_completed_todos: (args, todos) ->
-    _.reject todos, (todo) =>
+    _.reject todos, (todo) ->
       todo.completed == true
 
 module.exports = SimulateCommand

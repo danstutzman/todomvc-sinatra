@@ -31,7 +31,7 @@ class TodoWrapper
         'changes if you close the page.'
     @_render()
 
-  _addBeforeUnload: (handler) =>
+  _addBeforeUnload: (handler) ->
     if window.attachEvent # IE8
       window.attachEvent 'onbeforeunload', handler
     else
@@ -57,6 +57,7 @@ class TodoWrapper
         console.error 'show this error to the user:'
         throw err
       else
-        console.error "called _render with non-Error first arg #{JSON.stringify(err)}"
+        console.error(
+          "called _render with non-Error first arg #{JSON.stringify(err)}")
 
 module.exports = TodoWrapper

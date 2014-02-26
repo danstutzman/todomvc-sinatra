@@ -26,7 +26,8 @@
     "xmlhttprequest": "~1.6.0",
     "mocha": "~1.17.1",
     "html": "0.0.7",
-    "busta": "~0.1.1"
+    "busta": "~0.1.1",
+    "coffeelint": "~1.1.0"
   },
   "engines": {
     "node": ">=0.8.0"

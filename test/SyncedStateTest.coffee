@@ -93,7 +93,7 @@ describe 'SyncedState', ->
       syncedState: 0
 
     state.simulateAndSyncCommand(name: 'do1').end ->
-      assert.equal state.simulatedState, -2 # NOT 1, because we still have 2 queued
+      assert.equal state.simulatedState, -2 # NOT 1, because 2 still queued
     state.doSimulateCommand = -> -2
     state.doSyncCommand = (command, syncedState) ->
       assert.equal syncedState, 1
@@ -118,7 +118,7 @@ describe 'SyncedState', ->
 
     state.simulateAndSyncCommand(name: 'do1').end ->
       assert.equal state.syncedState, 1
-      assert.equal state.simulatedState, -2 # NOT 1, because we still have 2 queued
+      assert.equal state.simulatedState, -2 # NOT 1, because 2 still queued
 
     state.doSimulateCommand = -> -2
     state.doSyncCommand = (command, syncedState) ->

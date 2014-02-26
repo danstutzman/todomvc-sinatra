@@ -5,7 +5,7 @@ Queue = ->
   previous = Deferred().resolve()
   (fn, fail) ->
     if typeof fn != 'function'
-      throw 'must be a function'
+      throw Error('must be a function')
     # If the previous request is already finished by the time a new one is
     # added, don't chain the requests, because if the previous one errored,
     # it would immediately reject the new one too.  Instead, start from a
@@ -22,8 +22,8 @@ class SyncedState
        options.doSimulateCommand == undefined ||
        options.doSyncCommand     == undefined ||
        options.syncedState       == undefined
-         throw Error('First argument should be
-         { doSimulateCommand, doSyncCommand, syncedState }')
+      throw Error('First argument should be
+      { doSimulateCommand, doSyncCommand, syncedState }')
     @doSimulateCommand = options.doSimulateCommand
     @doSyncCommand     = options.doSyncCommand
     @syncedState       = @_addCids(options.syncedState)

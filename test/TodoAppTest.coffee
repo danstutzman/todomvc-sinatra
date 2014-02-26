@@ -82,7 +82,7 @@ go_to_hash = (hash, done, expectations) ->
     window.addEventListener 'hashchange', listener1
     window.location.hash = hash
 
-find = (node, selector, i) =>
+find = (node, selector, i) ->
   if i is undefined
     node.querySelectorAll(selector)
   else
@@ -91,7 +91,7 @@ find = (node, selector, i) =>
       throw new Error("No results from #{selector}")
     results[i]
 
-find1 = (node, selector) =>
+find1 = (node, selector) ->
   results = find(node, selector)
 
 describe 'TodoApp', ->
