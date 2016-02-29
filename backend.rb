@@ -5,21 +5,20 @@ Bundler.setup
 require 'logger'
 require 'json'
 require 'dotenv'
-require 'sequel'
+require 'active_record'
 require 'sinatra'
+require 'sinatra/activerecord'
 
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
 
-$db = Sequel.connect(ENV.fetch('DATABASE_URL'))
-$db.logger = Logger.new($stdout)
-
 module TodomvcBackend
-  class TodoItem < Sequel::Model
-    plugin :json_serializer
+  class TodoItem < ActiveRecord::Base
   end
 
   class App < Sinatra::Application
+    register Sinatra::ActiveRecordExtension
+
     configure do
       disable :method_override
       set :sessions,

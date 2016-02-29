@@ -3,10 +3,10 @@ source 'https://rubygems.org'
 gem 'sinatra', require: 'sinatra/base'
 gem 'dotenv'
 
-# Database
-gem 'sequel'
-gem 'sinatra-sequel'
+gem 'activerecord', '~> 4.2', '>= 4.2.5'
 gem 'pg'
+gem 'sinatra-activerecord'
+gem 'activerecord-postgresql-adapter'
 
 gem 'bundler'
 gem 'rake'
