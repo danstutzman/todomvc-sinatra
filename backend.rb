@@ -8,6 +8,7 @@ require 'dotenv'
 require 'active_record'
 require 'sinatra'
 require 'sinatra/activerecord'
+require 'thin'
 
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
