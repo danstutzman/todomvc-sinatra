@@ -6,3 +6,4 @@
 /dist
 /ansible/var
 /lcov-report
+/vendor/bundle
