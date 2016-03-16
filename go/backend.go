@@ -168,7 +168,10 @@ func main() {
 		handleRequest(w, r, db)
 	})
 	log.Printf("Listening on :3000...")
-	http.ListenAndServe(":3000", nil)
+	err = http.ListenAndServe(":3000", nil)
+	if err != nil {
+		log.Fatalf("Error from ListenAndServe: %s", err)
+	}
 }
 
 func handleRequest(writer http.ResponseWriter, request *http.Request, db *sql.DB) {
