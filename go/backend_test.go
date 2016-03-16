@@ -7,37 +7,37 @@ import (
 )
 
 func TestHandleBodyNoDeviceUid(t *testing.T) {
-	db := &Db{
+	model := &MemoryModel{
 		nextDeviceId: 1,
 		devices:      []Device{},
 	}
-	err := handleBody(Body{}, db)
+	err := handleBody(Body{}, model)
 	assert.Equal(t, fmt.Errorf("Blank DeviceUid"), err)
 }
 
 func TestHandleBodyNewDevice(t *testing.T) {
-	db := &Db{
+	model := &MemoryModel{
 		nextDeviceId: 2,
 		devices: []Device{
 			{Id: 1, Uid: "earlier"},
 		},
 	}
-	err := handleBody(Body{DeviceUid: "new"}, db)
+	err := handleBody(Body{DeviceUid: "new"}, model)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, []Device{
 		{Id: 1, Uid: "earlier"},
 		{Id: 2, Uid: "new"},
-	}, db.devices)
+	}, model.devices)
 }
 
 func TestHandleBodyExistingDevice(t *testing.T) {
-	db := &Db{
+	model := &MemoryModel{
 		nextDeviceId: 2,
 		devices: []Device{
 			{Id: 1, Uid: "here"},
 		},
 	}
-	err := handleBody(Body{DeviceUid: "here"}, db)
+	err := handleBody(Body{DeviceUid: "here"}, model)
 	assert.Equal(t, nil, err)
-	assert.Equal(t, []Device{{Id: 1, Uid: "here"}}, db.devices)
+	assert.Equal(t, []Device{{Id: 1, Uid: "here"}}, model.devices)
 }
