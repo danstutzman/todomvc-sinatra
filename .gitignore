@@ -7,3 +7,4 @@
 /ansible/var
 /lcov-report
 /vendor/bundle
+.DS_Store
