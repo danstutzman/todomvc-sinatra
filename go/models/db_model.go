@@ -3,41 +3,8 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 )
-
-type Device struct {
-	Id  int    `json:"id"`
-	Uid string `json:"uid"`
-}
-
-type Model interface {
-	FindOrCreateDeviceByUid(uid string) (*Device, error)
-}
-
-type MemoryModel struct {
-	Devices      []Device
-	NextDeviceId int
-}
-
-func (model *MemoryModel) FindOrCreateDeviceByUid(uid string) (*Device, error) {
-	for _, device := range model.Devices {
-		log.Printf("Comparing %s to %s: %v", device.Uid, uid, device.Uid == uid)
-		if device.Uid == uid {
-			return &device, nil
-		}
-	}
-
-	newDevice := Device{
-		Id:  model.NextDeviceId,
-		Uid: uid,
-	}
-	model.Devices = append(model.Devices, newDevice)
-	log.Printf("New Devices: %v", model.Devices)
-	model.NextDeviceId += 1
-	return &newDevice, nil
-}
 
 type DbModel struct {
 	db *sql.DB
