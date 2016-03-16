@@ -12,15 +12,31 @@ type Body struct {
 }
 
 type Device struct {
+	Id  int    `json:"id"`
 	Uid string `json:"uid"`
 }
 
 type Db struct {
-	numDevicesCreated int
+	devices      []Device
+	nextDeviceId int
 }
 
-func (db *Db) FindOrCreateDeviceByUid(uid string) {
-	db.numDevicesCreated = 1
+func (db *Db) FindOrCreateDeviceByUid(uid string) *Device {
+	for _, device := range db.devices {
+		log.Printf("Comparing %s to %s: %v", device.Uid, uid, device.Uid == uid)
+		if device.Uid == uid {
+			return &device
+		}
+	}
+
+	newDevice := Device{
+		Id:  db.nextDeviceId,
+		Uid: uid,
+	}
+	db.devices = append(db.devices, newDevice)
+	log.Printf("New devices: %v", db.devices)
+	db.nextDeviceId += 1
+	return &newDevice
 }
 
 func main() {
@@ -61,7 +77,8 @@ func handleBody(body Body, db *Db) error {
 	if body.DeviceUid == "" {
 		return fmt.Errorf("Blank DeviceUid")
 	}
-	db.FindOrCreateDeviceByUid(body.DeviceUid)
+	device := db.FindOrCreateDeviceByUid(body.DeviceUid)
+	log.Println("Got device", device)
 
 	return nil
 }
