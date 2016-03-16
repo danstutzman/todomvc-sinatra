@@ -16,20 +16,24 @@ type Body struct {
 	DeviceUid string `json:"deviceUid"`
 }
 
-func main() {
-	type CommandLineArgs struct {
-		postgresCredentialsPath *string
-	}
+type CommandLineArgs struct {
+	postgresCredentialsPath *string
+}
+
+func mustParseFlags() CommandLineArgs {
 	args := CommandLineArgs{
 		postgresCredentialsPath: flag.String(
 			"postgres_credentials_path", "", "JSON file with username and password"),
 	}
 	flag.Parse()
-
 	if *args.postgresCredentialsPath == "" {
 		log.Fatal("Missing -postgres_credentials_path")
 	}
-	postgresCredentialsFile, err := os.Open(*args.postgresCredentialsPath)
+	return args
+}
+
+func mustOpenPostgres(postgresCredentialsPath string) *sql.DB {
+	postgresCredentialsFile, err := os.Open(postgresCredentialsPath)
 	if err != nil {
 		log.Fatal(fmt.Errorf("Couldn't os.Open postgres_credentials: %s", err))
 	}
@@ -45,7 +49,7 @@ func main() {
 	decoder := json.NewDecoder(postgresCredentialsFile)
 	if err = decoder.Decode(&postgresCredentials); err != nil {
 		log.Fatalf("Error using decoder.Decode to parse JSON at %s: %s",
-			args.postgresCredentialsPath, err)
+			postgresCredentialsPath, err)
 	}
 
 	dataSourceName := ""
@@ -74,14 +78,24 @@ func main() {
 		log.Fatal(fmt.Errorf("Error from db.QueryRow: %s", err))
 	}
 
+	return db
+}
+
+func mustRunWebServer(db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handleRequest(w, r, db)
 	})
 	log.Printf("Listening on :3000...")
-	err = http.ListenAndServe(":3000", nil)
+	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		log.Fatalf("Error from ListenAndServe: %s", err)
 	}
+}
+
+func main() {
+	args := mustParseFlags()
+	db := mustOpenPostgres(*args.postgresCredentialsPath)
+	mustRunWebServer(db)
 }
 
 func handleRequest(writer http.ResponseWriter, request *http.Request, db *sql.DB) {
