@@ -85,9 +85,9 @@ func mustOpenPostgres(postgresCredentialsPath string) *sql.DB {
 	return db
 }
 
-func mustRunWebServer(db *sql.DB) {
+func mustRunWebServer(model models.Model) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handleRequest(w, r, db)
+		handleRequest(w, r, model)
 	})
 	log.Printf("Listening on :3000...")
 	err := http.ListenAndServe(":3000", nil)
@@ -96,7 +96,7 @@ func mustRunWebServer(db *sql.DB) {
 	}
 }
 
-func mustRunSocketServer(socketPath string, db *sql.DB) {
+func mustRunSocketServer(socketPath string, model models.Model) {
 	log.Printf("Listening on %s...", socketPath)
 	l, err := net.Listen("unix", socketPath)
 	if err != nil {
@@ -126,7 +126,6 @@ func mustRunSocketServer(socketPath string, db *sql.DB) {
 		}
 		log.Println("Server got:", body)
 
-		model := models.NewDbModel(db)
 		if err := handleBody(body, model); err != nil {
 			log.Fatalf("Error from handleBody: %s", err)
 		}
@@ -148,11 +147,13 @@ func mustRunSocketServer(socketPath string, db *sql.DB) {
 func main() {
 	args := mustParseFlags()
 
-	db := mustOpenPostgres(args.postgresCredentialsPath)
-
 	if args.socketPath != "" {
-		mustRunSocketServer(args.socketPath, db)
+		mustRunSocketServer(args.socketPath, &models.MemoryModel{
+			NextDeviceId: 1,
+			Devices:      []models.Device{},
+		})
 	} else {
-		mustRunWebServer(db)
+		db := mustOpenPostgres(args.postgresCredentialsPath)
+		mustRunWebServer(models.NewDbModel(db))
 	}
 }

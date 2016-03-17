@@ -2,14 +2,15 @@ package main
 
 import (
 	"./models"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-func handleRequest(writer http.ResponseWriter, request *http.Request, db *sql.DB) {
+func handleRequest(writer http.ResponseWriter, request *http.Request,
+	model models.Model) {
+
 	var body Body
 	decoder := json.NewDecoder(request.Body)
 	if err := decoder.Decode(&body); err != nil {
@@ -18,7 +19,6 @@ func handleRequest(writer http.ResponseWriter, request *http.Request, db *sql.DB
 		return
 	}
 
-	model := models.NewDbModel(db)
 	if err := handleBody(body, model); err != nil {
 		http.Error(writer, fmt.Sprintf("Error from handleBody: %s", err),
 			http.StatusBadRequest)
