@@ -8,6 +8,10 @@ import (
 	"net/http"
 )
 
+type Response struct {
+	DeviceId int `json:"deviceId"`
+}
+
 func handleRequest(writer http.ResponseWriter, request *http.Request,
 	model models.Model) {
 
@@ -19,12 +23,12 @@ func handleRequest(writer http.ResponseWriter, request *http.Request,
 		return
 	}
 
-	if err := handleBody(body, model); err != nil {
+	response, err := handleBody(body, model)
+	if err != nil {
 		http.Error(writer, fmt.Sprintf("Error from handleBody: %s", err),
 			http.StatusBadRequest)
 		return
 	}
-	response := "OK"
 
 	responseJson, err := json.Marshal(response)
 	if err != nil {
@@ -37,15 +41,19 @@ func handleRequest(writer http.ResponseWriter, request *http.Request,
 	writer.Write(responseJson)
 }
 
-func handleBody(body Body, model models.Model) error {
+func handleBody(body Body, model models.Model) (*Response, error) {
 	if body.DeviceUid == "" {
-		return fmt.Errorf("Blank DeviceUid")
+		return nil, fmt.Errorf("Blank DeviceUid")
 	}
 	device, err := model.FindOrCreateDeviceByUid(body.DeviceUid)
 	if err != nil {
-		return fmt.Errorf("Error from FindOrCreateDeviceByUid: %s", err)
+		return nil, fmt.Errorf("Error from FindOrCreateDeviceByUid: %s", err)
 	}
 	log.Println("Got device", device)
 
-	return nil
+	response := Response{
+		DeviceId: device.Id,
+	}
+
+	return &response, nil
 }

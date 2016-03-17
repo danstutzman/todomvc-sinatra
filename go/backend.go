@@ -2,6 +2,7 @@ package main
 
 import (
 	"./models"
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"flag"
@@ -15,7 +16,8 @@ import (
 )
 
 type Body struct {
-	DeviceUid string `json:"deviceUid"`
+	ResetModel bool   `json:"resetModel"` // just for testing purposes
+	DeviceUid  string `json:"deviceUid"`
 }
 
 type CommandLineArgs struct {
@@ -120,30 +122,41 @@ func mustRunSocketServer(socketPath string, model models.Model) {
 			log.Fatal("accept error:", err)
 		}
 
-		var body Body
-		decoder := json.NewDecoder(fd)
-		if err := decoder.Decode(&body); err != nil {
-			log.Fatalf("Error parsing JSON: %s", fd, err)
-		}
-		log.Println("Server got:", body)
+		scanner := bufio.NewScanner(fd)
+		for scanner.Scan() {
+			bodyJson := scanner.Text()
 
-		if err := handleBody(body, model); err != nil {
-			log.Fatalf("Error from handleBody: %s", err)
-		}
-		response := "OK"
+			var body Body
+			if err := json.Unmarshal([]byte(bodyJson), &body); err != nil {
+				log.Fatalf("Error parsing JSON %s: %s", bodyJson, err)
+			}
+			log.Println("Server got:", body)
 
-		responseJson, err := json.Marshal(response)
-		if err != nil {
-			log.Fatalf("Error marshaling JSON %s: %s", response, err)
-		}
+			if body.ResetModel {
+				model = &models.MemoryModel{
+					NextDeviceId: 1,
+					Devices:      []models.Device{},
+				}
+			}
 
-		_, err = fd.Write(responseJson)
-		if err != nil {
-			log.Fatal("Write: ", err)
-		}
-	}
+			response, err := handleBody(body, model)
+			if err != nil {
+				log.Fatalf("Error from handleBody: %s", err)
+			}
 
-}
+			responseJson, err := json.Marshal(response)
+			if err != nil {
+				log.Fatalf("Error marshaling JSON %s: %s", response, err)
+			}
+
+			_, err = fd.Write(responseJson)
+			if err != nil {
+				log.Fatal("Write: ", err)
+			}
+		} // scan next line
+	} // endless loop of reading more data
+
+} // end mustRunSocketServer
 
 func main() {
 	args := mustParseFlags()
