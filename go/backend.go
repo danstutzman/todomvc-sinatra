@@ -102,6 +102,7 @@ func mustRunSocketServer(socketPath string, model models.Model) {
 	if err != nil {
 		log.Fatal("listen error:", err)
 	}
+	defer l.Close()
 
 	// Shut down server (delete socket file) if SIGINT received
 	sigc := make(chan os.Signal, 1)
