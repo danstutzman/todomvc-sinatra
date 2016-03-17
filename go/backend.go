@@ -1,14 +1,17 @@
 package main
 
 import (
+	"./models"
 	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
 )
 
 type Body struct {
@@ -16,16 +19,18 @@ type Body struct {
 }
 
 type CommandLineArgs struct {
-	postgresCredentialsPath *string
+	postgresCredentialsPath string
+	socketPath              string
 }
 
 func mustParseFlags() CommandLineArgs {
-	args := CommandLineArgs{
-		postgresCredentialsPath: flag.String(
-			"postgres_credentials_path", "", "JSON file with username and password"),
-	}
+	var args CommandLineArgs
+	flag.StringVar(&args.postgresCredentialsPath, "postgres_credentials_path", "",
+		"JSON file with username and password")
+	flag.StringVar(&args.socketPath, "socket_path", "",
+		"Path for UNIX socket server for testing")
 	flag.Parse()
-	if *args.postgresCredentialsPath == "" {
+	if args.postgresCredentialsPath == "" {
 		log.Fatal("Missing -postgres_credentials_path")
 	}
 	return args
@@ -91,8 +96,63 @@ func mustRunWebServer(db *sql.DB) {
 	}
 }
 
+func mustRunSocketServer(socketPath string, db *sql.DB) {
+	log.Printf("Listening on %s...", socketPath)
+	l, err := net.Listen("unix", socketPath)
+	if err != nil {
+		log.Fatal("listen error:", err)
+	}
+
+	// Shut down server (delete socket file) if SIGINT received
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, os.Interrupt)
+	go func(c chan os.Signal) {
+		sig := <-c
+		log.Printf("Caught signal %s: shutting down.", sig)
+		l.Close()
+		os.Exit(2)
+	}(sigc)
+
+	for {
+		fd, err := l.Accept()
+		if err != nil {
+			log.Fatal("accept error:", err)
+		}
+
+		var body Body
+		decoder := json.NewDecoder(fd)
+		if err := decoder.Decode(&body); err != nil {
+			log.Fatalf("Error parsing JSON: %s", fd, err)
+		}
+		log.Println("Server got:", body)
+
+		model := models.NewDbModel(db)
+		if err := handleBody(body, model); err != nil {
+			log.Fatalf("Error from handleBody: %s", err)
+		}
+		response := "OK"
+
+		responseJson, err := json.Marshal(response)
+		if err != nil {
+			log.Fatalf("Error marshaling JSON %s: %s", response, err)
+		}
+
+		_, err = fd.Write(responseJson)
+		if err != nil {
+			log.Fatal("Write: ", err)
+		}
+	}
+
+}
+
 func main() {
 	args := mustParseFlags()
-	db := mustOpenPostgres(*args.postgresCredentialsPath)
-	mustRunWebServer(db)
+
+	db := mustOpenPostgres(args.postgresCredentialsPath)
+
+	if args.socketPath != "" {
+		mustRunSocketServer(args.socketPath, db)
+	} else {
+		mustRunWebServer(db)
+	}
 }
